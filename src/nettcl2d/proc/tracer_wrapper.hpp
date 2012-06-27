@@ -35,7 +35,7 @@ namespace proc {
 			engine(engine) {}
 
 		virtual Base* clone() const {
-			return new TracerWrapper(dynamic_cast<AbstractTracer*>(engine->clone()));
+			return 0;
 		}
 
 		static int doMain(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {

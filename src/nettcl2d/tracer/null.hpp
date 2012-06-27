@@ -20,12 +20,6 @@ namespace tracer {
 
 	class Null : public AbstractTracer {
 
-		Null(const Null& src) {}
-
-		virtual phlib::Cloneable* doClone() const {
-			return new Null(*this);
-		}
-
 		virtual void doBeforeRun(const Network& network, double const startTime, double const endTime, double const dt) {}
 		virtual void doAfterRun(const Network& network) {}
 		virtual void doAfterIteration(const Network& network, double const time) {}

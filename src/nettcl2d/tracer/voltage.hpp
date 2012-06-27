@@ -72,10 +72,6 @@ namespace tracer {
 			params(params), nextTime(0.0) {
 		}
 
-		virtual ~Voltage() {
-			close();
-		}
-
 	private:
 
 		struct Entry {

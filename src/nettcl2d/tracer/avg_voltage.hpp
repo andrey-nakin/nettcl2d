@@ -28,15 +28,6 @@ namespace tracer {
 
 	class AverageVoltage : public Null, TimeTracer {
 
-		AverageVoltage(const AverageVoltage& src) :
-			TimeTracer(src),
-			params(src.params),
-			nextTime(src.nextTime) {}
-
-		virtual phlib::Cloneable* doClone() const {
-			return new AverageVoltage(*this);
-		}
-
 		virtual void doBeforeRun(const Network& network, double const startTime, double const endTime, double const dt) {
 			close();
 			detectPrecision(dt);

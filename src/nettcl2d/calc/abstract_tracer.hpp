@@ -14,10 +14,10 @@
 #ifndef TRACER_ABSTRACT_TRACER_HPP_
 #define TRACER_ABSTRACT_TRACER_HPP_
 
-#include <phlib/cloneable.hpp>
+#include <phlib/polymorphic.hpp>
 #include "../calc/network.hpp"
 
-class AbstractTracer : public phlib::Cloneable {
+class AbstractTracer : public phlib::Polymorphic {
 
 	virtual void doBeforeRun(const Network& network, double const startTime, double const endTime, double const dt) = 0;
 	virtual void doAfterRun(const Network& network) = 0;

@@ -82,8 +82,9 @@ namespace proc {
 		}
 
 		static void dup(Tcl_Obj * const srcPtr, Tcl_Obj * const dupPtr) {
-			const Wrapper* src = reinterpret_cast<Wrapper*>(srcPtr->internalRep.otherValuePtr);
-			dupPtr->internalRep.otherValuePtr = src->clone();
+			Wrapper* src = reinterpret_cast<Wrapper*>(srcPtr->internalRep.otherValuePtr);
+			Wrapper* dup = src->clone();
+			dupPtr->internalRep.otherValuePtr = dup ? dup : src;
 		}
 
 		static Tcl_ObjType* type(void) {
