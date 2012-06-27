@@ -1,8 +1,14 @@
 /*
- * statistics.hpp
+ * util/statistics.hpp --
  *
- *  Created on: 21.06.2012
- *      Author: andrey
+ * This file is part of nettcl2d application.
+ *
+ * Copyright (c) 2012 Andrey V. Nakin <andrey.nakin@gmail.com>
+ * All rights reserved.
+ *
+ * See the file "COPYING" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ *
  */
 
 #ifndef STATISTICS_HPP_

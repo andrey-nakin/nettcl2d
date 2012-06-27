@@ -1,8 +1,14 @@
 /*
- * perturbator_wrapper.hpp
+ * proc/perturbator_wrapper.hpp --
  *
- *  Created on: 22.06.2012
- *      Author: andrey
+ * This file is part of nettcl2d application.
+ *
+ * Copyright (c) 2012 Andrey V. Nakin <andrey.nakin@gmail.com>
+ * All rights reserved.
+ *
+ * See the file "COPYING" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ *
  */
 
 #ifndef PROC_PERTURBATOR_WRAPPER_HPP_

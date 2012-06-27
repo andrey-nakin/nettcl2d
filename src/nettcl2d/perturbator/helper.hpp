@@ -1,12 +1,18 @@
 /*
- * helper.hpp
+ * perturbator/helper.hpp --
  *
- *  Created on: 22.06.2012
- *      Author: andrey
+ * This file is part of nettcl2d application.
+ *
+ * Copyright (c) 2012 Andrey V. Nakin <andrey.nakin@gmail.com>
+ * All rights reserved.
+ *
+ * See the file "COPYING" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ *
  */
 
-#ifndef HELPER_HPP_
-#define HELPER_HPP_
+#ifndef PERT_HELPER_HPP_
+#define PERT_HELPER_HPP_
 
 #include "../calc/abstract_perturbator.hpp"
 
@@ -35,4 +41,4 @@ namespace perturbator {
 	};
 }
 
-#endif /* HELPER_HPP_ */
+#endif /* PERT_HELPER_HPP_ */

@@ -1,12 +1,18 @@
 /*
- * point.h
+ * calc/point.hpp --
  *
- *  Created on: 18.06.2012
- *      Author: andrey
+ * This file is part of nettcl2d application.
+ *
+ * Copyright (c) 2012 Andrey V. Nakin <andrey.nakin@gmail.com>
+ * All rights reserved.
+ *
+ * See the file "COPYING" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ *
  */
 
-#ifndef POINT_H_
-#define POINT_H_
+#ifndef CALC_POINT_HPP_
+#define CALC_POINT_HPP_
 
 class Point {
 
@@ -26,4 +32,4 @@ public:
 
 };
 
-#endif /* POINT_H_ */
+#endif /* CALC_POINT_HPP_ */
