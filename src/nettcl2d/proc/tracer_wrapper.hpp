@@ -81,8 +81,8 @@ namespace proc {
 			}
 
 			else if ("avg-voltage" == tracerType) {
-				if (objc > 5)
-					throw WrongNumArgs(interp, 1, objv, "?fileName? ?interval? ?startTime? ?precision?");
+				if (objc > 6)
+					throw WrongNumArgs(interp, 1, objv, "?fileName? ?interval? ?startTime? ?precision? ?tagExpr?");
 
 				tracer::AverageVoltage::Params params;
 				if (objc > 1) {
@@ -96,6 +96,10 @@ namespace proc {
 				}
 				if (objc > 4) {
 					params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
+				}
+
+				if (objc > 5) {
+					params.tagExpr = Tcl_GetStringFromObj(objv[5], NULL);
 				}
 
 				tracer = new tracer::AverageVoltage(params);
