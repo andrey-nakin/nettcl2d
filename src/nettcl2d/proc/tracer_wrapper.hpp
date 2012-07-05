@@ -42,7 +42,7 @@ namespace proc {
 			return process(clientData, interp, objc, objv, main);
 		}
 
-		static int main(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		static int main(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc < 2)
 				throw WrongNumArgs(interp, 1, objv, "command");
 
@@ -130,15 +130,6 @@ namespace proc {
 			w->typePtr = TracerWrapper::type();
 			w->internalRep.otherValuePtr = new TracerWrapper(tracer);
 			::Tcl_SetObjResult(interp, w);
-
-			return TCL_OK;
-		}
-
-		static int exists(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc != 1)
-				throw WrongNumArgs(interp, 0, objv, "tracerInst");
-
-			::Tcl_SetObjResult(interp, ::Tcl_NewBooleanObj(isInstanceOf(objv[0]) ? 1 : 0));
 
 			return TCL_OK;
 		}

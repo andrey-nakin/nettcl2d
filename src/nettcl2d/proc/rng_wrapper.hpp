@@ -61,11 +61,11 @@ namespace proc {
 				}
 
 				else if ("seed" == cmd) {
-					return seed(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&RngWrapper::seed));
 				}
 
 				else if ("next" == cmd) {
-					return next(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&RngWrapper::next));
 				}
 
 				else
@@ -112,24 +112,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		static int exists(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc != 1)
-				throw phlib::TclUtils::wrong_num_args_exception(interp, objc, objv);
-
-			::Tcl_SetObjResult(interp, ::Tcl_NewBooleanObj(isInstanceOf(objv[0]) ? 1 : 0));
-
-			return TCL_OK;
-		}
-
-		static int seed(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw phlib::TclUtils::wrong_num_args_exception(interp, objc, objv);
-
-			RngWrapper* const wrapper = validateArg(interp, objv[0]);
-			return wrapper->seed(interp, objc - 1, objv + 1);
-		}
-
-		int seed(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int seed(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc != 1)
 				throw phlib::TclUtils::wrong_num_args_exception(interp, objc, objv);
 
@@ -137,15 +120,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		static int next(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc != 1)
-				throw phlib::TclUtils::wrong_num_args_exception(interp, objc, objv);
-
-			RngWrapper* const wrapper = validateArg(interp, objv[0]);
-			return wrapper->next(interp, objc - 1, objv + 1);
-		}
-
-		int next(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int next(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc != 0)
 				throw phlib::TclUtils::wrong_num_args_exception(interp, objc, objv);
 

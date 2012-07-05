@@ -57,6 +57,7 @@ namespace tracer {
 			double interval;
 			double startTime;
 			unsigned precision;
+			Contact::TagContainer tags;
 
 			Params() :
 				fileName("s"),

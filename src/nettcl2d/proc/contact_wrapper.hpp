@@ -15,6 +15,7 @@
 #define PROC_CONTACT_HPP_
 
 #include "../calc/contact.hpp"
+#include "../calc/network.hpp"
 
 namespace proc {
 
@@ -27,9 +28,9 @@ namespace proc {
 		typedef Wrapper<&type::contact> Base;
 
 		boost::shared_ptr<Network> network;
-		std::size_t index;
+		Network::index_type index;
 
-		ContactWrapper(boost::shared_ptr<Network>& network, std::size_t const index) :
+		ContactWrapper(boost::shared_ptr<Network>& network, Network::index_type const index) :
 			network(network), index(index) {}
 
 		ContactWrapper(const ContactWrapper& src) :
@@ -43,11 +44,11 @@ namespace proc {
 			return new ContactWrapper(*this);
 		}
 
-		static int doMain(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		static int doMain(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
 			return process(clientData, interp, objc, objv, main);
 		}
 
-		static int main(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		static int main(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
 			if (objc < 2)
 				throw WrongNumArgs(interp, 1, objv, "command");
 
@@ -59,15 +60,31 @@ namespace proc {
 				}
 
 				else if ("get" == cmd) {
-					return get(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::get));
 				}
 
 				else if ("set" == cmd) {
-					return set(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::set));
+				}
+
+				else if ("has-tag" == cmd) {
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::hasTag));
+				}
+
+				else if ("add-tag" == cmd) {
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::addTag));
+				}
+
+				else if ("remove-tag" == cmd) {
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::removeTag));
+				}
+
+				else if ("matches" == cmd) {
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::matches));
 				}
 
 				else
-					throw WrongArgValue(interp, "exists | get | set");
+					throw WrongArgValue(interp, "exists | get | set | has-tag | add-tag | remove-tag | matches");
 			} catch (WrongNumArgs& ex) {
 				throw WrongNumArgs(interp, 2 + ex.objc, objv, ex.message);
 			}
@@ -75,71 +92,43 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		static int exists(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc != 1)
-				throw WrongNumArgs(interp, 0, objv, "contactInst");
-
-			::Tcl_SetObjResult(interp, ::Tcl_NewBooleanObj(isInstanceOf(objv[0]) ? 1 : 0));
-
-			return TCL_OK;
-		}
-
-		static int get(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "contactInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->get(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		static int set(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "contactInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->set(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		int get(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int get(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
 			if (objc != 1)
 				throw WrongNumArgs(interp, 0, objv, "parameter");
 
 			const std::string param = Tcl_GetStringFromObj(objv[0], NULL);
+			const Contact& c = contact();
 
 			if ("beta" == param) {
-				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(contact().beta));
+				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(c.beta));
 			} else if ("tau" == param) {
-					Tcl_SetObjResult(interp, Tcl_NewDoubleObj(contact().tau));
+				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(c.tau));
 			} else if ("v" == param) {
-					Tcl_SetObjResult(interp, Tcl_NewDoubleObj(contact().v));
+				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(c.v));
 			} else if ("z" == param) {
-					Tcl_SetObjResult(interp, Tcl_NewDoubleObj(contact().z));
+				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(c.z));
 			} else if ("phase" == param) {
-					Tcl_SetObjResult(interp, Tcl_NewDoubleObj(contact().phase));
+				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(c.phase));
 			} else if ("voltage" == param) {
-					Tcl_SetObjResult(interp, Tcl_NewDoubleObj(contact().voltage));
-			} else if ("tag" == param) {
-					Tcl_SetObjResult(interp, Tcl_NewIntObj(contact().tag));
+				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(c.voltage));
+			} else if ("tags" == param) {
+				Tcl_Obj *ret = Tcl_NewListObj(0, NULL);
+
+				for (
+						Contact::const_tag_iterator i = c.getTags().begin(), last = c.getTags().end();
+						i != last; ++i) {
+					Tcl_ListObjAppendElement(interp, ret, Tcl_NewStringObj(i->c_str(), -1));
+				}
+
+				Tcl_SetObjResult(interp, ret);
 			} else {
-				throw WrongArgValue(interp, "beta | tau | v | z | phase | voltage | tag");
+				throw WrongArgValue(interp, "beta | tau | v | z | phase | voltage | tags");
 			}
 
 			return TCL_OK;
 		}
 
-		int set(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int set(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
 			if (objc != 2)
 				throw WrongNumArgs(interp, 0, objv, "parameter value");
 
@@ -157,12 +146,47 @@ namespace proc {
 				contact().phase = phlib::TclUtils::getDouble(interp, objv[1]);
 			} else if ("voltage" == param) {
 				contact().voltage = phlib::TclUtils::getDouble(interp, objv[1]);
-			} else if ("tag" == param) {
-				contact().tag = phlib::TclUtils::getInt(interp, objv[1]);
 			} else {
-				throw WrongArgValue(interp, "beta | tau | v | z | phase | voltage | tag");
+				throw WrongArgValue(interp, "beta | tau | v | z | phase | voltage");
 			}
 
+			return TCL_OK;
+		}
+
+		int hasTag(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
+			if (objc != 1)
+				throw WrongNumArgs(interp, 0, objv, "tag");
+
+			Tcl_SetObjResult(interp, Tcl_NewIntObj(
+				contact().hasTag(Tcl_GetStringFromObj(objv[0], NULL)) ? 1 : 0));
+
+			return TCL_OK;
+		}
+
+		int addTag(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
+			if (objc != 1)
+				throw WrongNumArgs(interp, 0, objv, "tag");
+
+			contact().addTag(Tcl_GetStringFromObj(objv[0], NULL));
+
+			return TCL_OK;
+		}
+
+		int removeTag(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
+			if (objc != 1)
+				throw WrongNumArgs(interp, 0, objv, "tag");
+
+			contact().removeTag(Tcl_GetStringFromObj(objv[0], NULL));
+
+			return TCL_OK;
+		}
+
+		int matches(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
+			if (objc != 1)
+				throw WrongNumArgs(interp, 0, objv, "expr");
+
+			Tcl_SetObjResult(interp, Tcl_NewIntObj(
+				contact().matches(Tcl_GetStringFromObj(objv[0], NULL)) ? 1 : 0));
 			return TCL_OK;
 		}
 
@@ -176,7 +200,7 @@ namespace proc {
 			registerCommand(interp, doMain);
 		}
 
-		static Tcl_Obj* create(boost::shared_ptr<Network>& network, std::size_t const index) {
+		static Tcl_Obj* create(boost::shared_ptr<Network>& network, Network::index_type const index) {
 			// instantiate new TCL object
 			Tcl_Obj* const w = Tcl_NewObj();
 			w->typePtr = ContactWrapper::type();

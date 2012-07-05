@@ -17,6 +17,7 @@
 #include <tcl.h>
 #include <string>
 #include <phlib/tclutils.h>
+#include "../calc/contact.hpp"
 #include "var_ref.hpp"
 
 namespace proc {
@@ -49,7 +50,7 @@ namespace proc {
 		Tcl_Interp* const interp;
 		const int objc;
 		Tcl_Obj* const * const objv;
-		const char * const message;
+		const std::string message;
 
 		WrongNumArgs(Tcl_Interp* const interp, const int objc, Tcl_Obj* const objv[], const char * const message) :
 			interp(interp),
@@ -58,12 +59,21 @@ namespace proc {
 			message(message) {
 		}
 
+		WrongNumArgs(Tcl_Interp* const interp, const int objc, Tcl_Obj* const objv[], const std::string& message) :
+			interp(interp),
+			objc(objc),
+			objv(objv),
+			message(message) {
+		}
+
+		virtual ~WrongNumArgs() throw() {}
+
 		const char* what() const throw() {
-			return message;
+			return message.c_str();
 		}
 
 		void notify() const {
-			Tcl_WrongNumArgs(interp, objc, objv, message);
+			Tcl_WrongNumArgs(interp, objc, objv, message.c_str());
 		}
 	};
 
@@ -140,7 +150,8 @@ namespace proc {
 	protected:
 
 		typedef std::vector<VarRef> VarRefVector;
-		typedef int (*StaticHandler)(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]);
+		typedef int (*StaticHandler)(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]);
+		typedef int (Wrapper::*InstanceHandler)(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]);
 
 		static void registerCommand(Tcl_Interp * interp, StaticHandler handler) {
 			std::string cmdName;
@@ -156,12 +167,17 @@ namespace proc {
 				NULL);
 		}
 
-		static int process(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[], StaticHandler handler) {
+		static int process(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[], StaticHandler handler) {
 			int ret_code = TCL_ERROR;
 
 			try {
 				handler(clientData, interp, objc, objv);
 				ret_code = TCL_OK;
+			} catch (Contact::ParseException& ex) {
+				std::string msg("Wrong tag expression:\n");
+				msg += ex.getMessage();
+				msg += " ^";
+				Tcl_AppendResult(interp, msg.c_str(), NULL);
 			} catch (WrongNumArgs& ex) {
 				ex.notify();
 			} catch (WrongArgValue& ex) {
@@ -171,6 +187,36 @@ namespace proc {
 			}
 
 			return ret_code;
+		}
+
+		static int processInstance(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[], InstanceHandler handler) {
+			if (objc < 1) {
+				std::stringstream sb;
+				sb << *type_name << "Inst";
+				throw WrongNumArgs(interp, 0, objv, sb.str());
+			}
+
+			int result = TCL_ERROR;
+			try {
+				Wrapper* const wrapper = validateArg(interp, objv[0]);
+				result = (wrapper->*handler)(clientData, interp, objc - 1, objv + 1);
+			} catch (WrongNumArgs& ex) {
+				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
+			}
+
+			return result;
+		}
+
+		static int exists(Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
+			if (objc != 1) {
+				std::stringstream sb;
+				sb << *type_name << "Inst";
+				throw WrongNumArgs(interp, 0, objv, sb.str());
+			}
+
+			::Tcl_SetObjResult(interp, ::Tcl_NewBooleanObj(isInstanceOf(objv[0]) ? 1 : 0));
+
+			return TCL_OK;
 		}
 
 	private:

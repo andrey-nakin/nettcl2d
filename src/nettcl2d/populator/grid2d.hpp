@@ -37,21 +37,36 @@ namespace populator {
 				for (unsigned col = 0; col < params.columns; ++col) {
 					const Point p(1.0 * col + params.xRng(), 1.0 * row + params.yRng());
 					points[row].push_back(p);
-					//std::cout << "point col=" << col << " row=" << row << " x=" << p.x  << " y=" << p.y << " x-index="<< (points[row].size() - 1) << "\n";
 
 					std::size_t xIndex = 0, yIndex = 0;
 
 					if (col > 0) {
 						xIndex = network.addContact(Contact(params.betaRng(), params.tauRng(), params.vRng()));
-						network.contact(xIndex).tag = 1;
-						//std::cout << "add x contact col=" << col << " row=" << row << " index=" << xIndex << "\n";
+						network.contact(xIndex).addTag("horizontal");
+						if (row == 0) {
+							network.contact(xIndex).addTag("bottom");
+						}
+						else if (row == params.rows - 1) {
+							network.contact(xIndex).addTag("top");
+						}
+						else {
+							network.contact(xIndex).addTag("inner");
+						}
 						xIndices[row].push_back(xIndex);
 					}
 
 					if (row > 0) {
 						yIndex = network.addContact(Contact(params.betaRng(), params.tauRng(), params.vRng()));
-						network.contact(yIndex).tag = 2;
-						//std::cout << "add y contact col=" << col << " row=" << row << " index=" << yIndex << "\n";
+						network.contact(yIndex).addTag("vertical");
+						if (col == 0) {
+							network.contact(yIndex).addTag("left");
+						}
+						else if (col == params.columns - 1) {
+							network.contact(yIndex).addTag("right");
+						}
+						else {
+							network.contact(yIndex).addTag("inner");
+						}
 						yIndices[row].push_back(yIndex);
 					}
 
@@ -63,7 +78,6 @@ namespace populator {
 								points[row][col],
 								points[row-1][col]));
 						squares.accum(c.square);
-						//std::cout << "add contour col=" << col << " row=" << row << " square=" << c.square << "\n";
 
 						// bottom
 						c.addContactRef(ContactRef(xIndices[row-1][col-1], 1.0, -1.0));

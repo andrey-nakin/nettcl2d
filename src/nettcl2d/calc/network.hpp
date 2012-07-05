@@ -31,6 +31,7 @@ class Network : public phlib::Cloneable {
 public:
 
 	typedef std::size_t index_type;
+	typedef std::vector<Network::index_type> IndexVector;
 
 	typedef std::vector<Contact> ContactVector;
 	typedef ContactVector::iterator contact_iterator;
@@ -110,6 +111,23 @@ public:
 		const std::size_t index = circuits.size();
 		circuits.push_back(c);
 		return index;
+	}
+
+	IndexVector buildIndices(const std::string& expr) const {
+		IndexVector indices;
+
+		for (
+				Network::contact_const_iterator first = contactBegin(),
+					i = first, last = contactEnd();
+				i != last;
+				++i) {
+
+			if (expr.empty() || i->matches(expr)) {
+				indices.push_back(std::distance(first, i));
+			}
+		}
+
+		return indices;
 	}
 
 private:

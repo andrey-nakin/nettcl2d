@@ -59,11 +59,11 @@ namespace proc {
 				}
 
 				else if ("get" == cmd) {
-					return get(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&CircuitWrapper::get));
 				}
 
 				else if ("set" == cmd) {
-					return set(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&CircuitWrapper::set));
 				}
 
 				else
@@ -75,44 +75,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		static int exists(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc != 1)
-				throw WrongNumArgs(interp, 0, objv, "contactInst");
-
-			::Tcl_SetObjResult(interp, ::Tcl_NewBooleanObj(isInstanceOf(objv[0]) ? 1 : 0));
-
-			return TCL_OK;
-		}
-
-		static int get(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "contactInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->get(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		static int set(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "contactInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->set(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		int get(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int get(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc != 1)
 				throw WrongNumArgs(interp, 0, objv, "parameter");
 
@@ -127,7 +90,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		int set(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int set(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc != 2)
 				throw WrongNumArgs(interp, 0, objv, "parameter value");
 

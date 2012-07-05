@@ -17,7 +17,7 @@
 
 namespace proc {
 
-	const int appVersion[] = {1, 0, 0, -1};
+	const int appVersion[] = {1, 1, 0, -1};
 	const char* appNamespace = "nettcl2d";
 
 	namespace type {

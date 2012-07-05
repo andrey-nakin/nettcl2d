@@ -28,13 +28,8 @@ namespace perturbator {
 		}
 
 		virtual void doBeforeRun(Network& network, double const startTime, double const endTime, double const dt) {
-			std::size_t numOfContacts = 0;
-			for (Network::contact_const_iterator i = network.contactBegin(), last = network.contactEnd();
-					i != last; ++i) {
-				if (tagMatches(params.tag, i->tag)) {
-					++numOfContacts;
-				}
-			}
+			Network::IndexVector indices = network.buildIndices(params.tagExpr);
+			const std::size_t numOfContacts = indices.size();
 
 			if (0 == numOfContacts) {
 				return;
@@ -50,13 +45,11 @@ namespace perturbator {
 
 			std::vector<double>::const_iterator z= zs.begin();
 			for (
-					Network::contact_iterator i = network.contactBegin(), last = network.contactEnd();
+					Network::IndexVector::const_iterator i = indices.begin(), last = indices.end();
 					i != last;
-					++i) {
-				if (tagMatches(params.tag, i->tag)) {
-					i->z = *z - sum;
-					++z;
-				}
+					++i, ++z) {
+
+				network.contact(*i).z = *z - sum;
 			}
 		}
 
@@ -65,10 +58,10 @@ namespace perturbator {
 		struct Params {
 			double average;
 			AbstractRng& rng;
-			int tag;
+			std::string tagExpr;
 
-			Params(double const average, AbstractRng& rng, int tag) :
-				average(average), rng(rng), tag(tag) {}
+			Params(double const average, AbstractRng& rng) :
+				average(average), rng(rng) {}
 		};
 
 		Static(const Params& params) : params(params) {}

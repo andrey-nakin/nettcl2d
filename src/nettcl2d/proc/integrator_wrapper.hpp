@@ -69,31 +69,31 @@ namespace proc {
 				}
 
 				else if ("get" == cmd) {
-					return get(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&IntegratorWrapper::get));
 				}
 
 				else if ("set" == cmd) {
-					return get(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&IntegratorWrapper::set));
 				}
 
 				else if ("run" == cmd) {
-					return run(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&IntegratorWrapper::run));
 				}
 
 				else if ("add-tracer" == cmd) {
-					return addTracer(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&IntegratorWrapper::addTracer));
 				}
 
 				else if ("purge-tracers" == cmd) {
-					return purgeTracers(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&IntegratorWrapper::purgeTracers));
 				}
 
 				else if ("add-perturbator" == cmd) {
-					return addPerturbator(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&IntegratorWrapper::addPerturbator));
 				}
 
 				else if ("purge-perturbators" == cmd) {
-					return purgePerturbators(clientData, interp, objc - 2, objv + 2);
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&IntegratorWrapper::purgePerturbators));
 				}
 
 				else
@@ -126,114 +126,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		static int exists(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc != 1)
-				throw WrongNumArgs(interp, 0, objv, "integratorInst");
-
-			::Tcl_SetObjResult(interp, ::Tcl_NewBooleanObj(isInstanceOf(objv[0]) ? 1 : 0));
-
-			return TCL_OK;
-		}
-
-		static int get(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "integratorInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->get(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		static int set(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "integratorInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->set(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		static int run(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "integratorInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->run(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		static int addTracer(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "integratorInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->addTracer(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		static int purgeTracers(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "integratorInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->purgeTracers(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		static int addPerturbator(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "integratorInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->addPerturbator(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		static int purgePerturbators(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
-			if (objc < 1)
-				throw WrongNumArgs(interp, 0, objv, "integratorInst");
-
-			int result = TCL_ERROR;
-			try {
-				result = validateArg(interp, objv[0])->purgePerturbators(interp, objc - 1, objv + 1);
-			} catch (WrongNumArgs& ex) {
-				throw WrongNumArgs(interp, 1 + ex.objc, objv, ex.message);
-			}
-
-			return result;
-		}
-
-		int get(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int get(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc < 1)
 				throw WrongNumArgs(interp, 0, objv, "parameter");
 
@@ -250,7 +143,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		int set(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int set(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc != 2)
 				throw WrongNumArgs(interp, 0, objv, "parameter value");
 
@@ -267,7 +160,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		int run(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int run(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc != 4)
 				throw WrongNumArgs(interp, 0, objv, "networkInst startTime endTime dt");
 
@@ -280,7 +173,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		int addTracer(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int addTracer(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc != 1)
 				throw WrongNumArgs(interp, 0, objv, "tracerInst");
 
@@ -290,7 +183,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		int purgeTracers(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int purgeTracers(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc != 0)
 				throw WrongNumArgs(interp, 0, objv, "");
 
@@ -300,7 +193,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		int addPerturbator(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int addPerturbator(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc != 1)
 				throw WrongNumArgs(interp, 0, objv, "perturbatorInst");
 
@@ -310,7 +203,7 @@ namespace proc {
 			return TCL_OK;
 		}
 
-		int purgePerturbators(Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
+		int purgePerturbators(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			if (objc != 0)
 				throw WrongNumArgs(interp, 0, objv, "");
 
