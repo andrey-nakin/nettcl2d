@@ -45,9 +45,11 @@ namespace populator {
 						network.contact(xIndex).addTag("horizontal");
 						if (row == 0) {
 							network.contact(xIndex).addTag("bottom");
+							network.contact(xIndex).addTag("boundary");
 						}
 						else if (row == params.rows - 1) {
 							network.contact(xIndex).addTag("top");
+							network.contact(xIndex).addTag("boundary");
 						}
 						else {
 							network.contact(xIndex).addTag("inner");
@@ -60,9 +62,11 @@ namespace populator {
 						network.contact(yIndex).addTag("vertical");
 						if (col == 0) {
 							network.contact(yIndex).addTag("left");
+							network.contact(yIndex).addTag("boundary");
 						}
 						else if (col == params.columns - 1) {
 							network.contact(yIndex).addTag("right");
+							network.contact(yIndex).addTag("boundary");
 						}
 						else {
 							network.contact(yIndex).addTag("inner");
