@@ -15,6 +15,7 @@
 #define PROC_CIRCUIT_WRAPPER_HPP_
 
 #include "../calc/circuit.hpp"
+#include "tagable_wrapper.hpp"
 
 namespace proc {
 
@@ -22,9 +23,9 @@ namespace proc {
 		extern const char* circuit;
 	}
 
-	class CircuitWrapper : public Wrapper<&type::circuit> {
+	class CircuitWrapper : public TagableWrapper<&type::circuit> {
 
-		typedef Wrapper<&type::circuit> Base;
+		typedef TagableWrapper<&type::circuit> Base;
 
 		boost::shared_ptr<Network> network;
 		std::size_t index;
@@ -43,6 +44,10 @@ namespace proc {
 			return new CircuitWrapper(*this);
 		}
 
+		virtual Tagable& tagable() {
+			return circuit();
+		}
+
 		static int doMain(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			return process(clientData, interp, objc, objv, main);
 		}
@@ -54,6 +59,7 @@ namespace proc {
 			const std::string cmd = Tcl_GetStringFromObj(objv[1], NULL);
 
 			try {
+
 				if ("exists" == cmd) {
 					return exists(interp, objc - 2, objv + 2);
 				}
@@ -66,13 +72,11 @@ namespace proc {
 					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&CircuitWrapper::set));
 				}
 
-				else
-					throw WrongArgValue(interp, "exists | get | set");
 			} catch (WrongNumArgs& ex) {
 				throw WrongNumArgs(interp, 2 + ex.objc, objv, ex.message);
 			}
 
-			return TCL_OK;
+			return Base::main(clientData, interp, objc, objv, "exists | get | set");
 		}
 
 		int get(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
@@ -83,8 +87,10 @@ namespace proc {
 
 			if ("square" == param) {
 				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(circuit().square));
+			} else if ("tags" == param) {
+				Tcl_SetObjResult(interp, getTagsObj(interp));
 			} else {
-				throw WrongArgValue(interp, "square");
+				throw WrongArgValue(interp, "square | tags");
 			}
 
 			return TCL_OK;

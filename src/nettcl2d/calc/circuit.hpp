@@ -17,7 +17,7 @@
 #include <vector>
 #include "contact_ref.hpp"
 
-class Circuit {
+class Circuit : public Tagable {
 public:
 
 	typedef std::vector<ContactRef> ContactRefVector;

@@ -1,5 +1,5 @@
 /*
- * proc/contact.hpp --
+ * proc/contact_wrapper.hpp --
  *
  * This file is part of nettcl2d application.
  *
@@ -16,6 +16,7 @@
 
 #include "../calc/contact.hpp"
 #include "../calc/network.hpp"
+#include "tagable_wrapper.hpp"
 
 namespace proc {
 
@@ -23,9 +24,9 @@ namespace proc {
 		extern const char* contact;
 	}
 
-	class ContactWrapper : public Wrapper<&type::contact> {
+	class ContactWrapper : public TagableWrapper<&type::contact> {
 
-		typedef Wrapper<&type::contact> Base;
+		typedef TagableWrapper<&type::contact> Base;
 
 		boost::shared_ptr<Network> network;
 		Network::index_type index;
@@ -44,6 +45,10 @@ namespace proc {
 			return new ContactWrapper(*this);
 		}
 
+		virtual Tagable& tagable() {
+			return contact();
+		}
+
 		static int doMain(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
 			return process(clientData, interp, objc, objv, main);
 		}
@@ -55,6 +60,7 @@ namespace proc {
 			const std::string cmd = Tcl_GetStringFromObj(objv[1], NULL);
 
 			try {
+
 				if ("exists" == cmd) {
 					return exists(interp, objc - 2, objv + 2);
 				}
@@ -67,29 +73,11 @@ namespace proc {
 					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::set));
 				}
 
-				else if ("has-tag" == cmd) {
-					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::hasTag));
-				}
-
-				else if ("add-tag" == cmd) {
-					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::addTag));
-				}
-
-				else if ("remove-tag" == cmd) {
-					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::removeTag));
-				}
-
-				else if ("matches" == cmd) {
-					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<InstanceHandler>(&ContactWrapper::matches));
-				}
-
-				else
-					throw WrongArgValue(interp, "exists | get | set | has-tag | add-tag | remove-tag | matches");
 			} catch (WrongNumArgs& ex) {
 				throw WrongNumArgs(interp, 2 + ex.objc, objv, ex.message);
 			}
 
-			return TCL_OK;
+			return Base::main(clientData, interp, objc, objv, "exists | get | set");
 		}
 
 		int get(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
@@ -112,15 +100,7 @@ namespace proc {
 			} else if ("voltage" == param) {
 				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(c.voltage));
 			} else if ("tags" == param) {
-				Tcl_Obj *ret = Tcl_NewListObj(0, NULL);
-
-				for (
-						Contact::const_tag_iterator i = c.getTags().begin(), last = c.getTags().end();
-						i != last; ++i) {
-					Tcl_ListObjAppendElement(interp, ret, Tcl_NewStringObj(i->c_str(), -1));
-				}
-
-				Tcl_SetObjResult(interp, ret);
+				Tcl_SetObjResult(interp, getTagsObj(interp));
 			} else {
 				throw WrongArgValue(interp, "beta | tau | v | z | phase | voltage | tags");
 			}
@@ -150,43 +130,6 @@ namespace proc {
 				throw WrongArgValue(interp, "beta | tau | v | z | phase | voltage");
 			}
 
-			return TCL_OK;
-		}
-
-		int hasTag(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
-			if (objc != 1)
-				throw WrongNumArgs(interp, 0, objv, "tag");
-
-			Tcl_SetObjResult(interp, Tcl_NewIntObj(
-				contact().hasTag(Tcl_GetStringFromObj(objv[0], NULL)) ? 1 : 0));
-
-			return TCL_OK;
-		}
-
-		int addTag(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
-			if (objc != 1)
-				throw WrongNumArgs(interp, 0, objv, "tag");
-
-			contact().addTag(Tcl_GetStringFromObj(objv[0], NULL));
-
-			return TCL_OK;
-		}
-
-		int removeTag(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
-			if (objc != 1)
-				throw WrongNumArgs(interp, 0, objv, "tag");
-
-			contact().removeTag(Tcl_GetStringFromObj(objv[0], NULL));
-
-			return TCL_OK;
-		}
-
-		int matches(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
-			if (objc != 1)
-				throw WrongNumArgs(interp, 0, objv, "expr");
-
-			Tcl_SetObjResult(interp, Tcl_NewIntObj(
-				contact().matches(Tcl_GetStringFromObj(objv[0], NULL)) ? 1 : 0));
 			return TCL_OK;
 		}
 

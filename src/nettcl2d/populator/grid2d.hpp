@@ -92,6 +92,30 @@ namespace populator {
 						// right
 						c.addContactRef(ContactRef(yIndex, 1.0, -1.0));
 
+						if (col == 1) {
+							c.addTag("left");
+							c.addTag("boundary");
+						}
+
+						if (col == params.columns - 1) {
+							c.addTag("right");
+							c.addTag("boundary");
+						}
+
+						if (row == 1) {
+							c.addTag("bottom");
+							c.addTag("boundary");
+						}
+
+						if (row == params.rows - 1) {
+							c.addTag("top");
+							c.addTag("boundary");
+						}
+
+						if (col > 1 && col < params.columns - 1 && row > 1 && row < params.rows - 1) {
+							c.addTag("inner");
+						}
+
 						network.addCircuit(c);
 					}
 				}

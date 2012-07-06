@@ -28,13 +28,18 @@ namespace proc {
 	public:
 
 		Tcl_Interp* const interp;
-		const char * const message;
+		const std::string message;
 
-		WrongArgValue(Tcl_Interp* interp, const char *message) :
+		WrongArgValue(Tcl_Interp* interp, const char* const message) :
 			interp(interp), message(message) {}
 
+		WrongArgValue(Tcl_Interp* interp, const std::string& message) :
+			interp(interp), message(message) {}
+
+		virtual ~WrongArgValue() throw() {}
+
 		const char* what() const throw() {
-			return message;
+			return message.c_str();
 		}
 
 		void notify() const {
