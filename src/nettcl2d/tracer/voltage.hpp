@@ -15,6 +15,7 @@
 #define TRACER_VOLTAGE_HPP_
 
 #include <set>
+#include <iterator>
 #include <boost/scoped_ptr.hpp>
 #include "null.hpp"
 

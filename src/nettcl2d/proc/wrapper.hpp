@@ -182,7 +182,7 @@ namespace proc {
 				ex.notify();
 			} catch (WrongArgValue& ex) {
 				ex.notify();
-			} catch (std::exception& ex) {
+			} catch (std::exception&) {
 				//phlib::TclUtils::notifyProcError(interp, ex, usage);
 			}
 
