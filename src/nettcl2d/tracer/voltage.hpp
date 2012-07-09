@@ -17,6 +17,7 @@
 #include <set>
 #include <iterator>
 #include <boost/scoped_ptr.hpp>
+#include <boost/bind.hpp>
 #include "null.hpp"
 
 namespace tracer {
@@ -36,7 +37,7 @@ namespace tracer {
 
 		virtual void doAfterIteration(const Network& network, double const time) {
 			if (params.startTime <= time && nextTime <= time) {
-				std::for_each(entries.begin(), entries.end(), Tracer(network, time));
+				std::for_each(entries.begin(), entries.end(), boost::bind(&Entry::trace, _1, &network, time));
 				nextTime = time + params.interval;
 			}
 		}
@@ -89,16 +90,14 @@ namespace tracer {
 				}
 				if (!s->is_open()) {
 					close();
-				} else {
-					s->precision(params.precision);
 				}
 			}
 
-			void trace(const Network& source, const double time) {
+			void trace(const Network* source, const double time) {
 				if (s) {
 					*s	<< std::fixed << std::setprecision(timePrecision) << time
 						<< std::scientific << std::setprecision(precision)
-						<< '\t'  << source.contact(index).voltage
+						<< '\t'  << source->contact(index).voltage
 						<< '\n';
 				}
 			}
@@ -130,41 +129,13 @@ namespace tracer {
 
 		};
 
-		struct EntryCreator {
-
-			EntryCreator(const Params& params, const int timePrecision) :
-				params(params), timePrecision(timePrecision) {}
-
-			EntryPointer operator()(const Network::index_type index) const {
-				return EntryPointer(new Entry(index, params, timePrecision));
-			}
-
-		private:
-
-			const Params& params;
-			const int timePrecision;
-
-		};
-
-		struct Tracer {
-
-			Tracer(const Network& source, double const time) :
-				source(source), time(time) {}
-
-			void operator()(EntryPointer& e) {
-				e->trace(source, time);
-			}
-
-		private:
-
-			const Network& source;
-			const double time;
-
-		};
-
 		Params params;
 		double nextTime;
 		EntryVector entries;
+
+		EntryPointer makeEntry(const Network::index_type index) const {
+			return EntryPointer(new Entry(index, params, timePrecision));
+		}
 
 		void open(const Network& source) {
 			// populate vector of node indices
@@ -183,7 +154,7 @@ namespace tracer {
 				indices.begin(),
 				indices.end(),
 				std::back_insert_iterator<EntryVector>(entries),
-				EntryCreator(params, timePrecision));
+				boost::bind(&Voltage::makeEntry, this, _1));
 		}
 
 		void close() {

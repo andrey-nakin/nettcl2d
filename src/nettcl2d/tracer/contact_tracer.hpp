@@ -22,11 +22,6 @@ namespace tracer {
 
 		typedef FileIteration Base;
 
-		virtual void doBeforeRun(const Network& network, double const startTime, double const endTime, double const dt) {
-			Base::doBeforeRun(network, startTime, endTime, dt);
-			indices = network.buildIndices(dynamic_cast<const ContactTracerParams*>(params.get())->tagExpr);
-		}
-
 	protected:
 
 		struct ContactTracerParams : public IterationParams {
@@ -38,6 +33,11 @@ namespace tracer {
 		};
 
 		ContactTracer(const ContactTracerParams* p) : FileIteration(p) {}
+
+		virtual void doBeforeRun(const Network& network, double const startTime, double const endTime, double const dt) {
+			Base::doBeforeRun(network, startTime, endTime, dt);
+			indices = network.buildIndices(dynamic_cast<const ContactTracerParams*>(params.get())->tagExpr);
+		}
 
 		Network::IndexVector indices;
 
