@@ -28,7 +28,7 @@ namespace perturbator {
 		}
 
 		virtual void doBeforeRun(Network& network, double const startTime, double const endTime, double const dt) {
-			Network::IndexVector indices = network.buildIndices(params.tagExpr);
+			Network::IndexVector indices = network.buildContactIndices(params.tagExpr);
 			const std::size_t numOfContacts = indices.size();
 
 			if (0 == numOfContacts) {

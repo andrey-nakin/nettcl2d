@@ -113,27 +113,42 @@ public:
 		return index;
 	}
 
-	IndexVector buildIndices(const std::string& expr) const {
-		IndexVector indices;
+	IndexVector buildContactIndices(const std::string& expr) const {
+		return buildIndices(expr, contactBegin(), contactEnd());
+	}
 
-		for (
-				Network::contact_const_iterator first = contactBegin(),
-					i = first, last = contactEnd();
-				i != last;
-				++i) {
+	IndexVector buildCircuitIndices(const std::string& expr) const {
+		return buildIndices(expr, circuitBegin(), circuitEnd());
+	}
 
-			if (expr.empty() || i->matches(expr)) {
-				indices.push_back(std::distance(first, i));
-			}
+	double flux(const index_type circuitIndex) const {
+		const Circuit& c = circuit(circuitIndex);
+		double sum = 0.0;
+
+		for (Circuit::const_iterator i = c.begin(), last = c.end(); i != last; ++i) {
+			sum += i->weight * contact(i->index).phase;
 		}
 
-		return indices;
+		return c.square * sum;
 	}
 
 private:
 
 	ContactVector contacts;
 	CircuitVector circuits;
+
+	template <typename Iterator>
+	IndexVector buildIndices(const std::string& expr, Iterator begin, Iterator end) const {
+		IndexVector indices;
+
+		for (Iterator i = begin; i != end; ++i) {
+			if (expr.empty() || i->matches(expr)) {
+				indices.push_back(std::distance(begin, i));
+			}
+		}
+
+		return indices;
+	}
 
 };
 

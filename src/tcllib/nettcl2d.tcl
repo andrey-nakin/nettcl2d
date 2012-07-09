@@ -110,7 +110,7 @@ proc nettcl2d::makeTracer { args } {
        
 	    avg-voltage {
 	        return [nettcl2d::tracer create avg-voltage \
-	            [expr $options(fileName) == "" ? "s" : $options(fileName)]  \
+	            $options(fileName)  \
 	            $options(interval)  \
 	            $options(startTime)  \
 	            $options(precision)  \
@@ -120,7 +120,7 @@ proc nettcl2d::makeTracer { args } {
        
         voltage {
 	        return [nettcl2d::tracer create voltage \
-	            [expr $options(fileName) == "" ? "s" : $options(fileName)]  \
+	            $options(fileName)  \
 	            $options(interval)  \
 	            $options(startTime)  \
 	            $options(precision)  \
@@ -128,6 +128,26 @@ proc nettcl2d::makeTracer { args } {
             ]
         }
        
+	    avg-flux {
+	        return [nettcl2d::tracer create avg-flux \
+	            $options(fileName)  \
+	            $options(interval)  \
+	            $options(startTime)  \
+	            $options(precision)  \
+	            $options(tagExpr)  \
+            ]
+        }
+        
+        flux {
+	        return [nettcl2d::tracer create flux \
+	            $options(fileName)  \
+	            $options(interval)  \
+	            $options(startTime)  \
+	            $options(precision)  \
+	            $options(indices)  \
+            ]
+        }
+        
         default {
             error "Invalid tracer type $type"
         }

@@ -20,6 +20,8 @@
 #include "../tracer/null.hpp"
 #include "../tracer/avg_voltage.hpp"
 #include "../tracer/voltage.hpp"
+#include "../tracer/avg_flux.hpp"
+#include "../tracer/flux.hpp"
 
 namespace proc {
 
@@ -86,7 +88,10 @@ namespace proc {
 
 				tracer::AverageVoltage::Params params;
 				if (objc > 1) {
-					params.fileName = Tcl_GetStringFromObj(objv[1], NULL);
+					const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
+					if (!s.empty()) {
+						params.fileName = s;
+					}
 				}
 				if (objc > 2) {
 					params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
@@ -111,7 +116,10 @@ namespace proc {
 
 				tracer::Voltage::Params params;
 				if (objc > 1) {
-					params.fileNameFormat = Tcl_GetStringFromObj(objv[1], NULL);
+					const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
+					if (!s.empty()) {
+						params.fileNameFormat = s;
+					}
 				}
 				if (objc > 2) {
 					params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
@@ -124,14 +132,70 @@ namespace proc {
 				}
 				if (objc > 5) {
 					const std::vector<unsigned> src = phlib::TclUtils::getUIntVector(interp, objv[5]);
-					params.indices = std::set<Network::index_type>(src.begin(), src.end());
+					params.indices = tracer::Voltage::Params::IndexContainer(src.begin(), src.end());
 				}
 
 				tracer = new tracer::Voltage(params);
 			}
 
+			else if ("avg-flux" == tracerType) {
+				if (objc > 6)
+					throw WrongNumArgs(interp, 1, objv, "?fileName? ?interval? ?startTime? ?precision? ?tagExpr?");
+
+				tracer::AverageFlux::Params params;
+				if (objc > 1) {
+					const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
+					if (!s.empty()) {
+						params.fileName = s;
+					}
+				}
+				if (objc > 2) {
+					params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
+				}
+				if (objc > 3) {
+					params.startTime = phlib::TclUtils::getDouble(interp, objv[3]);
+				}
+				if (objc > 4) {
+					params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
+				}
+
+				if (objc > 5) {
+					params.tagExpr = Tcl_GetStringFromObj(objv[5], NULL);
+				}
+
+				tracer = new tracer::AverageFlux(params);
+			}
+
+			else if ("flux" == tracerType) {
+				if (objc > 6)
+					throw WrongNumArgs(interp, 1, objv, "?fileNameFormat? ?interval? ?startTime? ?precision? ?indices?");
+
+				tracer::Flux::Params params;
+				if (objc > 1) {
+					const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
+					if (!s.empty()) {
+						params.fileNameFormat = s;
+					}
+				}
+				if (objc > 2) {
+					params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
+				}
+				if (objc > 3) {
+					params.startTime = phlib::TclUtils::getDouble(interp, objv[3]);
+				}
+				if (objc > 4) {
+					params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
+				}
+				if (objc > 5) {
+					const std::vector<unsigned> src = phlib::TclUtils::getUIntVector(interp, objv[5]);
+					params.indices = tracer::Flux::Params::IndexContainer(src.begin(), src.end());
+				}
+
+				tracer = new tracer::Flux(params);
+			}
+
 			else
-				throw WrongArgValue(interp, "null | avg-voltage | voltage");
+				throw WrongArgValue(interp, "null | avg-voltage | voltage | avg-flux | flux");
 
 			// instantiate new TCL object
 			Tcl_Obj* const w = Tcl_NewObj();

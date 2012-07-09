@@ -1,5 +1,5 @@
 /*
- * tracer/voltage.hpp --
+ * tracer/flux.hpp --
  *
  * This file is part of nettcl2d application.
  *
@@ -11,36 +11,35 @@
  *
  */
 
-#ifndef TRACER_VOLTAGE_HPP_
-#define TRACER_VOLTAGE_HPP_
+#ifndef TRACER_FLUX_HPP_
+#define TRACER_FLUX_HPP_
 
 #include "index_tracer.hpp"
 
 namespace tracer {
 
-	struct VoltageWorker {
+	struct FluxWorker {
 
 		void writeHeader(std::ostream& s, const Network::index_type index) const {
-			s << "# time\tvoltage[" << index << "]\n";
+			s << "# time\tflux[" << index << "]\n";
 		}
 
 		void trace(std::ostream& s, const Network& network, const Network::index_type index) const {
-			s << network.contact(index).voltage;
+			s << network.flux(index);
 		}
 
 		static const char* fileNameFormat() {
-			return "u.%u";
+			return "flux.%u";
 		}
 	};
 
-	class Voltage : public IndexTracer<VoltageWorker> {
-
+	class Flux : public IndexTracer<FluxWorker> {
 	public:
 
-		Voltage(const Params& params) : IndexTracer<VoltageWorker>(params) {}
+		Flux(const Params& params) : IndexTracer<FluxWorker>(params) {}
 
 	};
 
 }
 
-#endif /* TRACER_VOLTAGE_HPP_ */
+#endif /* TRACER_FLUX_HPP_ */

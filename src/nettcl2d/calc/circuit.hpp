@@ -15,6 +15,7 @@
 #define CIRCUIT_HPP_
 
 #include <vector>
+#include "../calc/network.hpp"
 #include "contact_ref.hpp"
 
 class Circuit : public Tagable {

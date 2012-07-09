@@ -1,5 +1,5 @@
 /*
- * tracer/contact_tracer.hpp --
+ * tracer/circuit_tracer.hpp --
  *
  * This file is part of nettcl2d application.
  *
@@ -11,32 +11,32 @@
  *
  */
 
-#ifndef TRACER_CONTACT_TRACER_HPP_
-#define TRACER_CONTACT_TRACER_HPP_
+#ifndef TRACER_CIRCUIT_TRACER_HPP_
+#define TRACER_CIRCUIT_TRACER_HPP_
 
 #include "file_iteration.hpp"
 
 namespace tracer {
 
-	class ContactTracer : public FileIteration {
+	class CircuitTracer : public FileIteration {
 
 		typedef FileIteration Base;
 
 	protected:
 
-		struct ContactTracerParams : public IterationParams {
+		struct CircuitTracerParams : public IterationParams {
 			std::string tagExpr;
 
-			ContactTracerParams(const char* fileName) :
+			CircuitTracerParams(const char* fileName) :
 				IterationParams(fileName)
 			{}
 		};
 
-		ContactTracer(const ContactTracerParams* p) : FileIteration(p) {}
+		CircuitTracer(const CircuitTracerParams* p) : FileIteration(p) {}
 
 		virtual void doBeforeRun(const Network& network, double const startTime, double const endTime, double const dt) {
 			Base::doBeforeRun(network, startTime, endTime, dt);
-			indices = network.buildContactIndices(dynamic_cast<const ContactTracerParams*>(params.get())->tagExpr);
+			indices = network.buildCircuitIndices(dynamic_cast<const CircuitTracerParams*>(params.get())->tagExpr);
 		}
 
 		Network::IndexVector indices;
@@ -45,4 +45,4 @@ namespace tracer {
 
 }
 
-#endif /* TRACER_CONTACT_TRACER_HPP_ */
+#endif /* TRACER_CIRCUIT_TRACER_HPP_ */
