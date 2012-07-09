@@ -31,6 +31,8 @@ namespace tracer {
 		virtual void doTrace(const Network& network, double const time, std::ostream&) = 0;
 		virtual void writeHeader(std::ostream& s) {}
 
+	protected:
+
 		virtual void doBeforeRun(const Network& network, double const startTime, double const endTime, double const dt) {
 			close();
 			detectPrecision(dt);
@@ -53,20 +55,18 @@ namespace tracer {
 			}
 		}
 
-	protected:
-
-		struct IterationParams {
+		struct IterationParams : public phlib::Polymorphic {
 			std::string fileName;
 			double interval;
 			double startTime;
 			unsigned precision;
-			std::string tagExpr;
 
 			IterationParams(const char* fileName) :
 				fileName(fileName),
 				interval(0.0),
 				startTime(0.0),
 				precision(6) {}
+
 		};
 
 		boost::scoped_ptr<const IterationParams> params;

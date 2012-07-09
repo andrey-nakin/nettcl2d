@@ -43,9 +43,6 @@ namespace tracer {
 
 	public:
 
-		typedef std::size_t index_type;
-		typedef std::vector<index_type> IndexVector;
-
 		struct Params {
 
 			std::string fileNameFormat;
@@ -76,12 +73,12 @@ namespace tracer {
 	private:
 
 		struct Entry {
-			index_type index;
+			Network::index_type index;
 			boost::scoped_ptr<phlib::TraceStream> s;
 			int timePrecision;
 			int precision;
 
-			Entry(const index_type index, const Params& params, const int timePrecision) :
+			Entry(const Network::index_type index, const Params& params, const int timePrecision) :
 					index(index),
 					s(new phlib::TraceStream(params.makeFileName(index))),
 					timePrecision(timePrecision),
@@ -123,13 +120,13 @@ namespace tracer {
 
 			IndexGenerator() : index(0) {}
 
-			index_type operator()() {
+			Network::index_type operator()() {
 				return index++;
 			}
 
 		private:
 
-			index_type index;
+			Network::index_type index;
 
 		};
 
@@ -138,7 +135,7 @@ namespace tracer {
 			EntryCreator(const Params& params, const int timePrecision) :
 				params(params), timePrecision(timePrecision) {}
 
-			EntryPointer operator()(const index_type index) const {
+			EntryPointer operator()(const Network::index_type index) const {
 				return EntryPointer(new Entry(index, params, timePrecision));
 			}
 
@@ -171,14 +168,14 @@ namespace tracer {
 
 		void open(const Network& source) {
 			// populate vector of node indices
-			IndexVector indices;
+			Network::IndexVector indices;
 			if (params.indices.size() > 0) {
 				// indices are explicitly specified
-				std::copy(params.indices.begin(), params.indices.end(), std::back_insert_iterator<IndexVector>(indices));
+				std::copy(params.indices.begin(), params.indices.end(), std::back_insert_iterator<Network::IndexVector>(indices));
 			}
 			if (indices.empty()) {
 				// trace all network nodes
-				std::generate_n(std::back_insert_iterator<IndexVector>(indices), source.getNumOfContacts(), IndexGenerator());
+				std::generate_n(std::back_insert_iterator<Network::IndexVector>(indices), source.getNumOfContacts(), IndexGenerator());
 			}
 
 			// create trace streams

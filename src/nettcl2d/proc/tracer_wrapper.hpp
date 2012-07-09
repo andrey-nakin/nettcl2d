@@ -106,8 +106,8 @@ namespace proc {
 			}
 
 			else if ("voltage" == tracerType) {
-				if (objc > 5)
-					throw WrongNumArgs(interp, 1, objv, "?fileNameFormat? ?interval? ?startTime? ?precision?");
+				if (objc > 6)
+					throw WrongNumArgs(interp, 1, objv, "?fileNameFormat? ?interval? ?startTime? ?precision? ?indices?");
 
 				tracer::Voltage::Params params;
 				if (objc > 1) {
@@ -121,6 +121,10 @@ namespace proc {
 				}
 				if (objc > 4) {
 					params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
+				}
+				if (objc > 5) {
+					const std::vector<unsigned> src = phlib::TclUtils::getUIntVector(interp, objv[5]);
+					params.indices = std::set<Network::index_type>(src.begin(), src.end());
 				}
 
 				tracer = new tracer::Voltage(params);

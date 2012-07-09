@@ -22,11 +22,11 @@
 #include <phlib/tracestream.h>
 #include "../calc/abstract_tracer.hpp"
 #include "../util/statistics.hpp"
-#include "file_iteration.hpp"
+#include "contact_tracer.hpp"
 
 namespace tracer {
 
-	class AverageVoltage : public FileIteration {
+	class AverageVoltage : public ContactTracer {
 
 		virtual void doTrace(const Network& network, double const time, std::ostream& s) {
 			const Statistics stat = calcStat(network);
@@ -39,19 +39,19 @@ namespace tracer {
 
 	public:
 
-		struct Params : public IterationParams {
-			Params() : IterationParams("s") {}
+		struct Params : public ContactTracerParams {
+			Params() : ContactTracerParams("s") {}
 		};
 
-		AverageVoltage(const Params& params) : FileIteration(new Params(params)) {}
+		AverageVoltage(const Params& params) : ContactTracer(new Params(params)) {}
 
 	private:
 
 		Statistics calcStat(const Network& network) {
 			Statistics stat;
 
-			for (Network::contact_const_iterator i = network.contactBegin(), last = network.contactEnd(); i != last; ++i) {
-				stat.accum(i->voltage);
+			for (Network::IndexVector::const_iterator i = indices.begin(), last = indices.end(); i != last; ++i) {
+				stat.accum(network.contact(*i).voltage);
 			}
 
 			return stat;
