@@ -88,3 +88,48 @@ proc nettcl2d::makeGrid2d { args } {
 	return [::nettcl2d::network create $populator]
 }
 
+# Creates and returns tracer instance
+proc nettcl2d::makeTracer { args } {
+	set opts {
+		{interval.arg	0.0		"Tracing interval"}
+		{startTime.arg	0.0		"Start time for tracing"}
+		{precision.arg	6		"Number precision"}
+		{fileName.arg	""		"Trace file name"}
+		{tagExpr.arg	""		"Tag expression"}
+		{indices.arg	""		"Element indices"}
+	}
+
+	set usage ": makeTracer \[options] type\noptions:"
+	array set options [::cmdline::getoptions args $opts $usage]
+	lassign $args type
+	
+	switch -exact -- $type {
+	    null {
+	        return [nettcl2d::tracer create null]
+        }
+       
+	    avg-voltage {
+	        return [nettcl2d::tracer create avg-voltage \
+	            [expr $options(fileName) == "" ? "s" : $options(fileName)]  \
+	            $options(interval)  \
+	            $options(startTime)  \
+	            $options(precision)  \
+	            $options(tagExpr)  \
+            ]
+        }
+       
+        voltage {
+	        return [nettcl2d::tracer create voltage \
+	            [expr $options(fileName) == "" ? "s" : $options(fileName)]  \
+	            $options(interval)  \
+	            $options(startTime)  \
+	            $options(precision)  \
+	            $options(indices)  \
+            ]
+        }
+       
+        default {
+            error "Invalid tracer type $type"
+        }
+    }
+}
