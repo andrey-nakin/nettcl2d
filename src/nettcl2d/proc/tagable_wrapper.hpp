@@ -63,6 +63,10 @@ namespace proc {
 					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::removeTag));
 				}
 
+				else if ("get-prop" == cmd) {
+					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::getProp));
+				}
+
 				else if ("matches" == cmd) {
 					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::matches));
 				}
@@ -70,7 +74,7 @@ namespace proc {
 				else {
 					std::string s;
 					s += usage;
-					s += " | has-tag | add-tag | remove-tag | matches";
+					s += " | has-tag | add-tag | remove-tag | get-prop | matches";
 					throw WrongArgValue(interp, s);
 				}
 			} catch (WrongNumArgs& ex) {
@@ -106,6 +110,15 @@ namespace proc {
 				throw WrongNumArgs(interp, 0, objv, "tag");
 
 			tagable().removeTag(Tcl_GetStringFromObj(objv[0], NULL));
+
+			return TCL_OK;
+		}
+
+		int getProp(ClientData /* clientData */, Tcl_Interp * interp, int objc, Tcl_Obj * const objv[]) {
+			if (objc != 1)
+				throw WrongNumArgs(interp, 0, objv, "propName");
+
+			Tcl_SetObjResult(interp, Tcl_NewStringObj(tagable().getProp(Tcl_GetStringFromObj(objv[0], NULL)).c_str(), -1));
 
 			return TCL_OK;
 		}

@@ -16,13 +16,18 @@
 
 #include <string>
 #include <set>
+#include <map>
 #include <exception>
+#include <sstream>
 #include "point.hpp"
 
 struct Tagable {
 
 	typedef std::set<std::string> TagContainer;
 	typedef TagContainer::const_iterator const_tag_iterator;
+
+	typedef std::map<std::string, std::string> PropContainer;
+	typedef PropContainer::const_iterator const_prop_iterator;
 
 	class ParseException : public std::exception {
 
@@ -43,10 +48,11 @@ struct Tagable {
 	};
 
 	TagContainer tags;
+	PropContainer props;
 
 	Tagable() {}
 
-	Tagable(const Tagable& src) : tags(src.tags) {}
+	Tagable(const Tagable& src) : tags(src.tags), props(src.props) {}
 
 	void addTag(const char* const tag) {
 		tags.insert(std::string(tag));
@@ -77,10 +83,23 @@ struct Tagable {
 		return false;
 	}
 
+	template <typename Type>
+	void setProp(const std::string& name, const Type value) {
+		std::stringstream s;
+		s << value;
+		props[name] = s.str();
+	}
+
+	const std::string& getProp(const std::string& name) const {
+		static const std::string empty;
+		const Tagable::PropContainer::const_iterator i = props.find(name);
+		return i == props.end() ? empty : i->second;
+	}
+
 	/**
 	 tag         ::= '*' | (<latin letter> | <digit> | '-' | '_')+
 	 group       ::= '(' expression ')'
-     factor      ::= tag | group
+     factor      ::= group | prop = <value> | tag
      term        ::= factor ('&' factor)*
      expression  ::= term ('|' term)*
     */

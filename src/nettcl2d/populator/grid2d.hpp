@@ -43,6 +43,9 @@ namespace populator {
 					if (col > 0) {
 						xIndex = network.addContact(Contact(params.betaRng(), params.tauRng(), params.vRng()));
 						network.contact(xIndex).addTag("horizontal");
+						network.contact(xIndex).setProp("x", col - 1);
+						network.contact(xIndex).setProp("y", row);
+
 						if (row == 0) {
 							network.contact(xIndex).addTag("bottom");
 							network.contact(xIndex).addTag("boundary");
@@ -60,6 +63,9 @@ namespace populator {
 					if (row > 0) {
 						yIndex = network.addContact(Contact(params.betaRng(), params.tauRng(), params.vRng()));
 						network.contact(yIndex).addTag("vertical");
+						network.contact(yIndex).setProp("x", col);
+						network.contact(yIndex).setProp("y", row - 1);
+
 						if (col == 0) {
 							network.contact(yIndex).addTag("left");
 							network.contact(yIndex).addTag("boundary");

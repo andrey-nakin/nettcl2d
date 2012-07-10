@@ -19,7 +19,6 @@
 #include <string>
 #include <map>
 #include <cstdlib>
-#include <iomanip>
 #include <boost/spirit/include/classic.hpp>
 #include <boost/spirit/include/phoenix1_binders.hpp>
 #include <boost/lambda/bind.hpp>
@@ -27,8 +26,8 @@
 
 struct calculator : boost::spirit::classic::grammar<calculator> {
 
-	calculator(bool& result, const Tagable::TagContainer& tags) :
-		result(result), tags(tags) {}
+	calculator(bool& result, const Tagable::TagContainer& tags, const Tagable::PropContainer& props) :
+		result(result), tags(tags), props(props) {}
 
 	// A production can have an associated closure, to store information
 	// for that production.
@@ -38,6 +37,11 @@ struct calculator : boost::spirit::classic::grammar<calculator> {
 
 	struct string_closure : boost::spirit::classic::closure<string_closure, std::string> {
 		member1 name;
+	};
+
+	struct comparison_closure : boost::spirit::classic::closure<comparison_closure, double, std::string> {
+	    member1 value;
+	    member2 name;
 	};
 
 	// Following is the grammar definition.
@@ -65,17 +69,27 @@ struct calculator : boost::spirit::classic::grammar<calculator> {
 			statement =
 				expression[bind(&calculator::do_print)(self, arg1)] >> end_p;
 
-			// A variable name must be looked up. This is a straightforward
+			literal	=
+				lexeme_d[
+					+alnum_p
+				][literal.name = construct_<std::string>(arg1, arg2)];
+
+			comparison =
+				identifier[comparison.name = arg1] >> '=' >> literal
+				[comparison.value = bind(&calculator::lookupProp)(self, comparison.name, arg1) /*construct_<std::string>(arg1, arg2) */];
+
+		    // A variable name must be looked up. This is a straightforward
 			// Phoenix binding.
 			factor =
 				group[factor.value = arg1]
+				| comparison[factor.value = arg1]
 				| identifier[factor.value = bind(&calculator::lookupTag)(self, arg1)];
 
 			term =
-				factor[term.value = arg1] >> *('&' >> factor[term.value *= arg1]);
+				factor[term.value = arg1] >> *('&' >> factor[term.value = term.value && arg1]);
 
 			expression =
-				term[expression.value = arg1] >> *('|' >> term[expression.value += arg1]);
+				term[expression.value = arg1] >> *('|' >> term[expression.value = expression.value || arg1]);
 		}
 
 		// The start symbol is returned from start().
@@ -85,7 +99,8 @@ struct calculator : boost::spirit::classic::grammar<calculator> {
 
 		// Each rule must be declared, optionally with an associated closure.
 		boost::spirit::classic::rule<ScannerT> statement;
-		boost::spirit::classic::rule<ScannerT, string_closure::context_t> identifier;
+		boost::spirit::classic::rule<ScannerT, string_closure::context_t> identifier, literal;
+		boost::spirit::classic::rule<ScannerT, comparison_closure::context_t> comparison;
 		boost::spirit::classic::rule<ScannerT, value_closure::context_t> expression, factor, group, term;
 	};
 
@@ -93,6 +108,11 @@ struct calculator : boost::spirit::classic::grammar<calculator> {
 		return "*" == name && !tags.empty()
 			? true
 			: tags.end() != tags.find(name);
+	}
+
+	bool lookupProp(const std::string& name, const std::string& value) const {
+		const Tagable::PropContainer::const_iterator i = props.find(name);
+		return i != props.end() && i->second == value;
 	}
 
 	void do_print(bool x) const {
@@ -103,6 +123,7 @@ private:
 
 	bool& result;
 	const Tagable::TagContainer& tags;
+	const Tagable::PropContainer& props;
 
 };
 
@@ -110,7 +131,7 @@ bool Tagable::matches(const std::string& expression) const {
 	using namespace boost::spirit::classic;
 
 	bool result = false;
-	calculator calc(result, tags);
+	calculator calc(result, tags, props);
 
 	parse_info<std::string::const_iterator> info = parse(expression.begin(), expression.end(), calc, space_p);
 	if (!info.hit) {
