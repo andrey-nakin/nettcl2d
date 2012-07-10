@@ -83,115 +83,19 @@ namespace proc {
 			}
 
 			else if ("avg-voltage" == tracerType) {
-				if (objc > 6)
-					throw WrongNumArgs(interp, 1, objv, "?fileName? ?interval? ?startTime? ?precision? ?tagExpr?");
-
-				tracer::AverageVoltage::Params params;
-				if (objc > 1) {
-					const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
-					if (!s.empty()) {
-						params.fileName = s;
-					}
-				}
-				if (objc > 2) {
-					params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
-				}
-				if (objc > 3) {
-					params.startTime = phlib::TclUtils::getDouble(interp, objv[3]);
-				}
-				if (objc > 4) {
-					params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
-				}
-
-				if (objc > 5) {
-					params.tagExpr = Tcl_GetStringFromObj(objv[5], NULL);
-				}
-
-				tracer = new tracer::AverageVoltage(params);
+				tracer = makeTagableTracer<tracer::AverageVoltage>(interp, objc, objv);
 			}
 
 			else if ("voltage" == tracerType) {
-				if (objc > 6)
-					throw WrongNumArgs(interp, 1, objv, "?fileNameFormat? ?interval? ?startTime? ?precision? ?indices?");
-
-				tracer::Voltage::Params params;
-				if (objc > 1) {
-					const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
-					if (!s.empty()) {
-						params.fileNameFormat = s;
-					}
-				}
-				if (objc > 2) {
-					params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
-				}
-				if (objc > 3) {
-					params.startTime = phlib::TclUtils::getDouble(interp, objv[3]);
-				}
-				if (objc > 4) {
-					params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
-				}
-				if (objc > 5) {
-					const std::vector<unsigned> src = phlib::TclUtils::getUIntVector(interp, objv[5]);
-					params.indices = tracer::Voltage::Params::IndexContainer(src.begin(), src.end());
-				}
-
-				tracer = new tracer::Voltage(params);
+				tracer = makeIndexTracer<tracer::Voltage>(interp, objc, objv);
 			}
 
 			else if ("avg-flux" == tracerType) {
-				if (objc > 6)
-					throw WrongNumArgs(interp, 1, objv, "?fileName? ?interval? ?startTime? ?precision? ?tagExpr?");
-
-				tracer::AverageFlux::Params params;
-				if (objc > 1) {
-					const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
-					if (!s.empty()) {
-						params.fileName = s;
-					}
-				}
-				if (objc > 2) {
-					params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
-				}
-				if (objc > 3) {
-					params.startTime = phlib::TclUtils::getDouble(interp, objv[3]);
-				}
-				if (objc > 4) {
-					params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
-				}
-
-				if (objc > 5) {
-					params.tagExpr = Tcl_GetStringFromObj(objv[5], NULL);
-				}
-
-				tracer = new tracer::AverageFlux(params);
+				tracer = makeTagableTracer<tracer::AverageFlux>(interp, objc, objv);
 			}
 
 			else if ("flux" == tracerType) {
-				if (objc > 6)
-					throw WrongNumArgs(interp, 1, objv, "?fileNameFormat? ?interval? ?startTime? ?precision? ?indices?");
-
-				tracer::Flux::Params params;
-				if (objc > 1) {
-					const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
-					if (!s.empty()) {
-						params.fileNameFormat = s;
-					}
-				}
-				if (objc > 2) {
-					params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
-				}
-				if (objc > 3) {
-					params.startTime = phlib::TclUtils::getDouble(interp, objv[3]);
-				}
-				if (objc > 4) {
-					params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
-				}
-				if (objc > 5) {
-					const std::vector<unsigned> src = phlib::TclUtils::getUIntVector(interp, objv[5]);
-					params.indices = tracer::Flux::Params::IndexContainer(src.begin(), src.end());
-				}
-
-				tracer = new tracer::Flux(params);
+				tracer = makeIndexTracer<tracer::Flux>(interp, objc, objv);
 			}
 
 			else
@@ -204,6 +108,74 @@ namespace proc {
 			::Tcl_SetObjResult(interp, w);
 
 			return TCL_OK;
+		}
+
+		template <typename Tracer>
+		static Tracer* makeTagableTracer(Tcl_Interp * interp, int objc, Tcl_Obj* const objv[]) {
+			if (objc > 6)
+				throw WrongNumArgs(interp, 1, objv, "?fileName? ?interval? ?startTime? ?precision? ?tagExpr?");
+
+			typename Tracer::Params params;
+
+			if (objc > 1) {
+				const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
+				if (!s.empty()) {
+					params.fileName = s;
+				}
+			}
+
+			if (objc > 2) {
+				params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
+			}
+
+			if (objc > 3) {
+				params.startTime = phlib::TclUtils::getDouble(interp, objv[3]);
+			}
+
+			if (objc > 4) {
+				params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
+			}
+
+			if (objc > 5) {
+				params.tagExpr = Tcl_GetStringFromObj(objv[5], NULL);
+			}
+
+			return new Tracer(params);
+		}
+
+		template <typename Tracer>
+		static Tracer* makeIndexTracer(Tcl_Interp * interp, int objc, Tcl_Obj* const objv[]) {
+			if (objc > 6)
+				throw WrongNumArgs(interp, 1, objv, "?fileNameFormat? ?interval? ?startTime? ?precision? ?indices?");
+
+			typedef typename Tracer::Params Params;
+			Params params;
+
+			if (objc > 1) {
+				const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
+				if (!s.empty()) {
+					params.fileNameFormat = s;
+				}
+			}
+
+			if (objc > 2) {
+				params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
+			}
+
+			if (objc > 3) {
+				params.startTime = phlib::TclUtils::getDouble(interp, objv[3]);
+			}
+
+			if (objc > 4) {
+				params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
+			}
+
+			if (objc > 5) {
+				const std::vector<unsigned> src = phlib::TclUtils::getUIntVector(interp, objv[5]);
+				params.indices = typename Params::IndexContainer(src.begin(), src.end());
+			}
+
+			return new Tracer(params);
 		}
 
 	public:

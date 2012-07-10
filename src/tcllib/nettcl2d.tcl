@@ -60,13 +60,13 @@ proc nettcl2d::makeGrid2d { args } {
 	set seedGen [nettcl2d::rng create uniform 10000.0 20000.0]
 	nettcl2d::rng seed $seedGen [expr int($options(seed))]
 	
-	if { [info exists options(xRng)] } {
+	if { $options(xRng) != "" } {
 		set xRng $options(xRng)
 	} else {
 		set xRng [nettcl2d::rng create uniform 1.0 $options(xyDelta)]
 		nettcl2d::rng seed $xRng [expr int([nettcl2d::rng next $seedGen])]
 	}
-	if { [info exists options(yRng)] } {
+	if { $options(yRng) != "" } {
 		set yRng $options(yRng)
 	} else {
 		set yRng [nettcl2d::rng create uniform 1.0 $options(xyDelta)]

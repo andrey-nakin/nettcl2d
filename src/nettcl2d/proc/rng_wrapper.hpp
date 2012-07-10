@@ -22,6 +22,7 @@
 #include "wrapper.hpp"
 #include "../calc/abstract_rng.hpp"
 #include "../rng/uniform_rng.hpp"
+#include "../rng/uniform2_rng.hpp"
 #include "../rng/const_rng.hpp"
 
 namespace proc {
@@ -93,6 +94,15 @@ namespace proc {
 						phlib::TclUtils::getDouble(interp, objv[2]));
 			}
 
+			else if ("uniform2" == methodName) {
+				if (objc != 3)
+					throw WrongNumArgs(interp, 1, objv, "min max");
+
+				rng = new rng::Uniform2(
+						phlib::TclUtils::getDouble(interp, objv[1]),
+						phlib::TclUtils::getDouble(interp, objv[2]));
+			}
+
 			else if ("const" == methodName) {
 				if (objc != 2)
 					throw WrongNumArgs(interp, 1, objv, "value");
@@ -101,7 +111,7 @@ namespace proc {
 			}
 
 			else
-				throw WrongArgValue(interp, "const | uniform");
+				throw WrongArgValue(interp, "const | uniform | uniform2");
 
 			// instantiate new TCL object
 			Tcl_Obj* const w = Tcl_NewObj();

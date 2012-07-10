@@ -56,7 +56,7 @@ namespace tracer {
 			IndexContainer indices;
 
 			Params() :
-				fileNameFormat(typename Worker::fileNameFormat()),
+				fileNameFormat(Worker::fileNameFormat()),
 				startTime(0.0),
 				interval(0.0),
 				precision(6)
