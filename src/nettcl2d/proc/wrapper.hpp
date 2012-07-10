@@ -17,7 +17,7 @@
 #include <tcl.h>
 #include <string>
 #include <phlib/tclutils.h>
-#include "../calc/contact.hpp"
+#include "../calc/tagable.hpp"
 #include "var_ref.hpp"
 
 namespace proc {
@@ -178,7 +178,7 @@ namespace proc {
 			try {
 				handler(clientData, interp, objc, objv);
 				ret_code = TCL_OK;
-			} catch (Contact::ParseException& ex) {
+			} catch (Tagable::ParseException& ex) {
 				std::string msg("Wrong tag expression:\n");
 				msg += ex.getMessage();
 				msg += " ^";
