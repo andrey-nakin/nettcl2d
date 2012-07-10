@@ -153,3 +153,12 @@ proc nettcl2d::makeTracer { args } {
         }
     }
 }
+
+# Creates and returns tracer instance
+proc nettcl2d::foreachContact { varName network tagExpr expression } {
+	upvar $varName var
+	foreach var [nettcl2d::network get $network contacts $tagExpr] {
+		uplevel $expression
+	}
+}
+

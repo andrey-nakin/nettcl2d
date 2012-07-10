@@ -69,7 +69,7 @@ struct calculator : boost::spirit::classic::grammar<calculator> {
 			// Phoenix binding.
 			factor =
 				group[factor.value = arg1]
-				| identifier[factor.value = bind(&calculator::lookup)(self, arg1)];
+				| identifier[factor.value = bind(&calculator::lookupTag)(self, arg1)];
 
 			term =
 				factor[term.value = arg1] >> *('&' >> factor[term.value *= arg1]);
@@ -89,7 +89,7 @@ struct calculator : boost::spirit::classic::grammar<calculator> {
 		boost::spirit::classic::rule<ScannerT, value_closure::context_t> expression, factor, group, term;
 	};
 
-	bool lookup(const std::string& name) const {
+	bool lookupTag(const std::string& name) const {
 		return "*" == name && !tags.empty()
 			? true
 			: tags.end() != tags.find(name);

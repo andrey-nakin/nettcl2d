@@ -15,6 +15,7 @@
 #define PROC_NETWORK_HPP_
 
 #include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
 #include <phlib/tclutils.h>
 #include "../calc/network.hpp"
 #include "populator_wrapper.hpp"
@@ -106,26 +107,57 @@ namespace proc {
 					throw WrongNumArgs(interp, 0, objv, "parameter circuitIndex");
 				Tcl_SetObjResult(interp, CircuitWrapper::create(engine, phlib::TclUtils::getUInt(interp, objv[1])));
 			} else if ("contacts" == param) {
-				Tcl_Obj *ret = Tcl_NewListObj(0, NULL);
+				if (objc > 2)
+					throw WrongNumArgs(interp, 0, objv, "contacts ?tagExpr?");
 
-				for (Network::index_type i = 0, last = engine->getNumOfContacts(); i < last; ++i) {
-					Tcl_ListObjAppendElement(interp, ret, ContactWrapper::create(engine, i));
-				}
-
-				Tcl_SetObjResult(interp, ret);
+				Tcl_SetObjResult(
+					interp,
+					makeList(
+						interp,
+						objc,
+						objv,
+						boost::bind(&Network::buildContactIndices, engine, _1),
+						boost::bind(&ContactWrapper::create, engine, _1)));
 			} else if ("circuits" == param) {
-				Tcl_Obj *ret = Tcl_NewListObj(0, NULL);
+				if (objc > 2)
+					throw WrongNumArgs(interp, 0, objv, "circuits ?tagExpr?");
 
-				for (Network::index_type i = 0, last = engine->getNumOfCircuits(); i < last; ++i) {
-					Tcl_ListObjAppendElement(interp, ret, CircuitWrapper::create(engine, i));
-				}
-
-				Tcl_SetObjResult(interp, ret);
+				Tcl_SetObjResult(
+					interp,
+					makeList(
+						interp,
+						objc,
+						objv,
+						boost::bind(&Network::buildCircuitIndices, engine, _1),
+						boost::bind(&CircuitWrapper::create, engine, _1)));
 			} else {
 				throw WrongArgValue(interp, "num-of-contacts | num-of-circuits | contact-at | circuit-at | contacts | circuits");
 			}
 
 			return TCL_OK;
+		}
+
+		template <typename IndexBuilder, typename ElementCreator>
+		Tcl_Obj* makeList(Tcl_Interp * interp, int objc, Tcl_Obj* const objv[], IndexBuilder builder, ElementCreator creator) {
+			Tcl_Obj *ret = Tcl_NewListObj(0, NULL);
+
+			std::string tagExpr;
+			if (objc > 1) {
+				tagExpr = Tcl_GetStringFromObj(objv[1], NULL);
+			}
+
+			const Network::IndexVector indices = builder(tagExpr);
+//			const Network::IndexVector indices = engine->buildContactIndices(tagExpr);
+			for (
+					Network::IndexVector::const_iterator i = indices.begin(), last = indices.end();
+					i != last;
+					++i) {
+
+//				Tcl_ListObjAppendElement(interp, ret, ContactWrapper::create(engine, *i));
+				Tcl_ListObjAppendElement(interp, ret, creator(*i));
+			}
+
+			return ret;
 		}
 
 	public:
