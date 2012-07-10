@@ -187,8 +187,14 @@ namespace proc {
 				ex.notify();
 			} catch (WrongArgValue& ex) {
 				ex.notify();
-			} catch (std::exception&) {
-				//phlib::TclUtils::notifyProcError(interp, ex, usage);
+			} catch (std::exception& ex) {
+				std::string msg("exception ");
+				msg += typeid(ex).name();
+				msg += ": ";
+				msg += ex.what();
+				Tcl_AppendResult(interp, msg.c_str(), NULL);
+			} catch (...) {
+				Tcl_AppendResult(interp, "unexpected error", NULL);
 			}
 
 			return ret_code;
