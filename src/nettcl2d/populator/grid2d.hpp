@@ -22,6 +22,38 @@
 namespace populator {
 
 	class Grid2d : public AbstractPopulator {
+	public:
+
+		struct Params {
+			unsigned columns, rows;
+			AbstractRng& xRng;
+			AbstractRng& yRng;
+			AbstractRng& betaRng;
+			AbstractRng& tauRng;
+			AbstractRng& vRng;
+
+			Params(
+					unsigned columns,
+					unsigned rows,
+					AbstractRng& xRng,
+					AbstractRng& yRng,
+					AbstractRng& betaRng,
+					AbstractRng& tauRng,
+					AbstractRng& vRng) :
+				columns(columns), rows(rows),
+				xRng(xRng), yRng(yRng),
+				betaRng(betaRng), tauRng(tauRng), vRng(vRng) {}
+		};
+
+		Grid2d(const Params& params) : params(params){
+		}
+
+	private:
+
+		const Params params;
+
+		Grid2d(const Grid2d& src) : params(src.params){
+		}
 
 		virtual void doPopulate(Network& network) {
 			std::vector<std::vector<Point> > points;
@@ -139,38 +171,8 @@ namespace populator {
 		}
 
 		virtual phlib::Cloneable* doClone() const {
-			return new Grid2d(params);
+			return new Grid2d(*this);
 		}
-
-	public:
-
-		struct Params {
-			unsigned columns, rows;
-			AbstractRng& xRng;
-			AbstractRng& yRng;
-			AbstractRng& betaRng;
-			AbstractRng& tauRng;
-			AbstractRng& vRng;
-
-			Params(
-					unsigned columns,
-					unsigned rows,
-					AbstractRng& xRng,
-					AbstractRng& yRng,
-					AbstractRng& betaRng,
-					AbstractRng& tauRng,
-					AbstractRng& vRng) :
-				columns(columns), rows(rows),
-				xRng(xRng), yRng(yRng),
-				betaRng(betaRng), tauRng(tauRng), vRng(vRng) {}
-		};
-
-		Grid2d(const Params& params) : params(params){
-		}
-
-	private:
-
-		const Params params;
 
 		static double rectSquare(const Point& a, const Point& b, const Point& c, const Point& d) {
 			return triSquare(a, b, c) + triSquare(a, c, d);

@@ -180,7 +180,7 @@ namespace proc {
 				ret_code = TCL_OK;
 			} catch (Tagable::ParseException& ex) {
 				std::string msg("Wrong tag expression:\n");
-				msg += ex.getMessage();
+				msg += ex.what();
 				msg += " ^";
 				Tcl_AppendResult(interp, msg.c_str(), NULL);
 			} catch (WrongNumArgs& ex) {

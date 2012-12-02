@@ -70,12 +70,6 @@ namespace perturbator {
 
 		const Params params;
 
-		static bool tagMatches(const int tag1, const int tag2) {
-			return
-					tag1 == tag2
-					|| tag1 == 0
-					|| tag2 == 0;
-		}
 	};
 
 }

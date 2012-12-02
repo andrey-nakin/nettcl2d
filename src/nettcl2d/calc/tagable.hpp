@@ -17,7 +17,7 @@
 #include <string>
 #include <set>
 #include <map>
-#include <exception>
+#include <stdexcept>
 #include <sstream>
 #include "point.hpp"
 
@@ -29,22 +29,10 @@ struct Tagable {
 	typedef std::map<std::string, std::string> PropContainer;
 	typedef PropContainer::const_iterator const_prop_iterator;
 
-	class ParseException : public std::exception {
+	struct ParseException : public std::invalid_argument {
 
-		const std::string message;
+		ParseException(const std::string& msg) : std::invalid_argument(msg) {}
 
-	public:
-
-		ParseException(const std::string& msg) : message(msg) {}
-		virtual ~ParseException() throw() {}
-
-		virtual const char* what() const throw() {
-			return message.c_str();
-		}
-
-		const std::string& getMessage() const {
-			return message;
-		}
 	};
 
 	TagContainer tags;
@@ -55,19 +43,18 @@ struct Tagable {
 	Tagable(const Tagable& src) : tags(src.tags), props(src.props) {}
 
 	void addTag(const char* const tag) {
-		tags.insert(std::string(tag));
+		tags.insert(tag);
 	}
 
 	void removeTag(const char* const tag) {
-		TagContainer::iterator i = tags.find(std::string(tag));
+		TagContainer::iterator i = tags.find(tag);
 		if (i != tags.end()) {
 			tags.erase(i);
 		}
 	}
 
 	bool hasTag(const char* const tag) const {
-		const std::string t(tag);
-		return "*" == t || tags.end() != tags.find(t);
+		return hasTag(std::string(tag));
 	}
 
 	bool hasTag(const std::string& tag) const {
@@ -84,7 +71,7 @@ struct Tagable {
 	}
 
 	template <typename Type>
-	void setProp(const std::string& name, const Type value) {
+	void setProp(const std::string& name, const Type& value) {
 		std::stringstream s;
 		s << value;
 		props[name] = s.str();

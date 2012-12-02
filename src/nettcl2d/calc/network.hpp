@@ -42,7 +42,6 @@ public:
 	typedef CircuitVector::const_iterator circuit_const_iterator;
 
 	Network() {
-
 	}
 
 	ContactVector::size_type getNumOfContacts() const {
