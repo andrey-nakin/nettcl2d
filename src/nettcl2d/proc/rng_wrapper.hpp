@@ -143,7 +143,7 @@ namespace proc {
 		boost::shared_ptr<AbstractRng> engine;
 
 		static RngWrapper* validateArg(Tcl_Interp *interp, const Tcl_Obj* arg) {
-			return (RngWrapper*) Base::validateArg(interp, arg);
+			return static_cast<RngWrapper*>(Base::validateArg(interp, arg));
 		}
 
 		static void registerCommands(Tcl_Interp * interp) {

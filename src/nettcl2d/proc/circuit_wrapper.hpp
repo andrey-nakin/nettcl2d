@@ -37,7 +37,7 @@ namespace proc {
 			network(src.network), index(src.index) {}
 
 		static CircuitWrapper* validateArg(Tcl_Interp *interp, const Tcl_Obj* arg) {
-			return (CircuitWrapper*) Base::validateArg(interp, arg);
+			return static_cast<CircuitWrapper*>(Base::validateArg(interp, arg));
 		}
 
 		virtual Base* clone() const {

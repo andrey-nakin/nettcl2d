@@ -33,10 +33,6 @@ namespace proc {
 			return new Version(*this);
 		}
 
-		static RngWrapper* validateArg(Tcl_Interp *interp, const Tcl_Obj* arg) {
-			return (RngWrapper*) Base::validateArg(interp, arg);
-		}
-
 		static int doMain(ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[]) {
 			return process(clientData, interp, objc, objv, main);
 		}

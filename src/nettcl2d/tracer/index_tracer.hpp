@@ -62,7 +62,7 @@ namespace tracer {
 				precision(6)
 			{}
 
-			std::string makeFileName(const std::size_t index) const {
+			std::string makeFileName(std::size_t index) const {
 				char buf[256];
 				sprintf(buf, fileNameFormat.c_str(), index);
 				return buf;

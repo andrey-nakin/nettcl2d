@@ -42,7 +42,7 @@ namespace proc {
 			engine(engine) {}
 
 		static IntegratorWrapper* validateArg(Tcl_Interp *interp, const Tcl_Obj* arg) {
-			return (IntegratorWrapper*) Base::validateArg(interp, arg);
+			return static_cast<IntegratorWrapper*>(Base::validateArg(interp, arg));
 		}
 
 		virtual Base* clone() const {

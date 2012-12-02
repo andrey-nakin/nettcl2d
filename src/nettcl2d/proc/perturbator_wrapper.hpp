@@ -116,7 +116,7 @@ namespace proc {
 		boost::shared_ptr<AbstractPerturbator> engine;
 
 		static PerturbatorWrapper* validateArg(Tcl_Interp *interp, const Tcl_Obj* arg) {
-			return (PerturbatorWrapper*) Base::validateArg(interp, arg);
+			return static_cast<PerturbatorWrapper*>(Base::validateArg(interp, arg));
 		}
 
 		static void registerCommands(Tcl_Interp * interp) {

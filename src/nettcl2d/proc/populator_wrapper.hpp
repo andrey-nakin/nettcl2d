@@ -112,7 +112,7 @@ namespace proc {
 		boost::shared_ptr<AbstractPopulator> engine;
 
 		static PopulatorWrapper* validateArg(Tcl_Interp *interp, const Tcl_Obj* arg) {
-			return (PopulatorWrapper*) Base::validateArg(interp, arg);
+			return static_cast<PopulatorWrapper*>(Base::validateArg(interp, arg));
 		}
 
 		static void registerCommands(Tcl_Interp * interp) {

@@ -38,7 +38,7 @@ namespace proc {
 			network(src.network), index(src.index) {}
 
 		static ContactWrapper* validateArg(Tcl_Interp *interp, const Tcl_Obj* arg) {
-			return (ContactWrapper*) Base::validateArg(interp, arg);
+			return static_cast<ContactWrapper*>(Base::validateArg(interp, arg));
 		}
 
 		virtual Base* clone() const {

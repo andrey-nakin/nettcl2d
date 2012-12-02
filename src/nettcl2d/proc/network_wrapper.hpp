@@ -165,7 +165,7 @@ namespace proc {
 		boost::shared_ptr<Network> engine;
 
 		static NetworkWrapper* validateArg(Tcl_Interp *interp, const Tcl_Obj* arg) {
-			return (NetworkWrapper*) Base::validateArg(interp, arg);
+			return static_cast<NetworkWrapper*>(Base::validateArg(interp, arg));
 		}
 
 		static void registerCommands(Tcl_Interp * interp) {
