@@ -33,10 +33,10 @@ namespace tracer {
 		}
 	};
 
-	class Flux : public IndexTracer<FluxWorker> {
+	class Flux : public IndexTracer<FluxWorker, false> {
 	public:
 
-		Flux(const Params& params) : IndexTracer<FluxWorker>(params) {}
+		Flux(const Params& params) : IndexTracer<FluxWorker, false>(params) {}
 
 	};
 

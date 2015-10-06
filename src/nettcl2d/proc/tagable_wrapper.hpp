@@ -52,23 +52,23 @@ namespace proc {
 
 			try {
 				if ("has-tag" == cmd) {
-					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::hasTag));
+					return Base::processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::hasTag));
 				}
 
 				else if ("add-tag" == cmd) {
-					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::addTag));
+					return Base::processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::addTag));
 				}
 
 				else if ("remove-tag" == cmd) {
-					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::removeTag));
+					return Base::processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::removeTag));
 				}
 
 				else if ("get-prop" == cmd) {
-					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::getProp));
+					return Base::processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::getProp));
 				}
 
 				else if ("matches" == cmd) {
-					return processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::matches));
+					return Base::processInstance(clientData, interp, objc - 2, objv + 2, static_cast<typename Base::InstanceHandler>(&TagableWrapper::matches));
 				}
 
 				else {

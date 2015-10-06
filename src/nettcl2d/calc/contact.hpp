@@ -32,7 +32,8 @@ struct Contact : public Tagable {
 		beta(1.0), tau(1.0), v(40.0), z(0.0), phase(0.0), voltage(0.0) {}
 
 	Contact(double const beta, double const tau, double const v) :
-		beta(beta), tau(tau), v(v), z(0.0), phase(0.0), voltage(0.0) {}
+		beta(beta), tau(tau), v(v), z(0.0), phase(0.0), voltage(0.0) {
+	}
 
 };
 

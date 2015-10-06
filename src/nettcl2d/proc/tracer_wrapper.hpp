@@ -22,6 +22,8 @@
 #include "../tracer/voltage.hpp"
 #include "../tracer/avg_flux.hpp"
 #include "../tracer/flux.hpp"
+#include "../tracer/phase_diff.hpp"
+#include "../tracer/phase.hpp"
 
 namespace proc {
 
@@ -98,8 +100,16 @@ namespace proc {
 				tracer = makeIndexTracer<tracer::Flux>(interp, objc, objv);
 			}
 
+			else if ("phase-diff" == tracerType) {
+				tracer = makePhaseDiffTracer(interp, objc, objv);
+			}
+
+			else if ("phase" == tracerType) {
+				tracer = makeIndexTracer<tracer::Phase>(interp, objc, objv);
+			}
+
 			else
-				throw WrongArgValue(interp, "null | avg-voltage | voltage | avg-flux | flux");
+				throw WrongArgValue(interp, "null | avg-voltage | voltage | avg-flux | flux | phase | phase-diff");
 
 			// instantiate new TCL object
 			Tcl_Obj* const w = Tcl_NewObj();
@@ -146,7 +156,7 @@ namespace proc {
 		template <typename Tracer>
 		static Tracer* makeIndexTracer(Tcl_Interp * interp, int objc, Tcl_Obj* const objv[]) {
 			if (objc > 6)
-				throw WrongNumArgs(interp, 1, objv, "?fileNameFormat? ?interval? ?startTime? ?precision? ?indices?");
+				throw WrongNumArgs(interp, 1, objv, "?fileNameFormat? ?interval? ?startTime? ?precision? ?tagExpr?");
 
 			typedef typename Tracer::Params Params;
 			Params params;
@@ -171,11 +181,46 @@ namespace proc {
 			}
 
 			if (objc > 5) {
-				const std::vector<unsigned> src = phlib::TclUtils::getUIntVector(interp, objv[5]);
-				params.indices = typename Params::IndexContainer(src.begin(), src.end());
+				params.tagExpr = Tcl_GetStringFromObj(objv[5], NULL);
 			}
 
 			return new Tracer(params);
+		}
+
+		static tracer::PhaseDifference* makePhaseDiffTracer(Tcl_Interp * interp, int objc, Tcl_Obj* const objv[]) {
+			if (objc > 7)
+				throw WrongNumArgs(interp, 1, objv, "?fileName? ?interval? ?startTime? ?precision? ?tagExpr1? ?tagExpr2?");
+
+			tracer::PhaseDifference::Params params;
+
+			if (objc > 1) {
+				const std::string s = Tcl_GetStringFromObj(objv[1], NULL);
+				if (!s.empty()) {
+					params.fileName = s;
+				}
+			}
+
+			if (objc > 2) {
+				params.interval = phlib::TclUtils::getDouble(interp, objv[2]);
+			}
+
+			if (objc > 3) {
+				params.startTime = phlib::TclUtils::getDouble(interp, objv[3]);
+			}
+
+			if (objc > 4) {
+				params.precision = phlib::TclUtils::getUInt(interp, objv[4]);
+			}
+
+			if (objc > 5) {
+				params.tagExpr1 = Tcl_GetStringFromObj(objv[5], NULL);
+			}
+
+			if (objc > 6) {
+				params.tagExpr2 = Tcl_GetStringFromObj(objv[6], NULL);
+			}
+
+			return new tracer::PhaseDifference(params);
 		}
 
 	public:

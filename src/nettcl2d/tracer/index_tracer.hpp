@@ -22,7 +22,21 @@
 
 namespace tracer {
 
-	template <typename Worker>
+	template <bool useContacts>
+	struct IndexBuilder {
+		static Network::IndexVector buildIndices(const Network& source, const std::string tagExpr) {
+			return source.buildContactIndices(tagExpr);
+		}
+	};
+
+	template <>
+	struct IndexBuilder<false> {
+		static Network::IndexVector buildIndices(const Network& source, const std::string tagExpr) {
+			return source.buildCircuitIndices(tagExpr);
+		}
+	};
+
+	template <typename Worker, bool useContacts = true>
 	class IndexTracer : public Null, TimeTracer {
 
 		virtual void doBeforeRun(const Network& network, double const startTime, double const endTime, double const dt) {
@@ -53,7 +67,7 @@ namespace tracer {
 			double startTime;
 			double interval;
 			int precision;
-			IndexContainer indices;
+			std::string tagExpr;
 
 			Params() :
 				fileNameFormat(Worker::fileNameFormat()),
@@ -145,11 +159,10 @@ namespace tracer {
 		void open(const Network& source) {
 			// populate vector of node indices
 			Network::IndexVector indices;
-			if (params.indices.size() > 0) {
-				// indices are explicitly specified
-				std::copy(params.indices.begin(), params.indices.end(), std::back_insert_iterator<Network::IndexVector>(indices));
-			}
-			if (indices.empty()) {
+			if (!params.tagExpr.empty()) {
+				// tag expression is specified
+				indices = IndexBuilder<useContacts>::buildIndices(source, params.tagExpr);
+			} else {
 				// trace all network nodes
 				std::generate_n(std::back_insert_iterator<Network::IndexVector>(indices), source.getNumOfContacts(), IndexGenerator());
 			}

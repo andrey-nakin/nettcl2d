@@ -41,7 +41,7 @@ namespace rng {
 		Uniform(const double mean, const double range) :
 			mean(mean), range(range),
 			generator(static_cast<uint64_t>(12345L)),
-			distr(mean - 0.5 * range, mean + 0.5 * range) {}
+			distr(mean - 0.5 * range, range > 0.0 ? mean + 0.5 * range : mean + 1.0e-6) {}
 
 	private:
 

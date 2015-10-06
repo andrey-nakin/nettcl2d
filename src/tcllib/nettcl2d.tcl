@@ -96,7 +96,8 @@ proc nettcl2d::makeTracer { args } {
 		{precision.arg	6		"Number precision"}
 		{fileName.arg	""		"Trace file name"}
 		{tagExpr.arg	""		"Tag expression"}
-		{indices.arg	""		"Element indices"}
+		{tagExpr1.arg	""		"Tag expression #1"}
+		{tagExpr2.arg	""		"Tag expression #2"}
 	}
 
 	set usage ": makeTracer \[options] type\noptions:"
@@ -124,7 +125,7 @@ proc nettcl2d::makeTracer { args } {
 	            $options(interval)  \
 	            $options(startTime)  \
 	            $options(precision)  \
-	            $options(indices)  \
+	            $options(tagExpr)  \
             ]
         }
        
@@ -144,10 +145,31 @@ proc nettcl2d::makeTracer { args } {
 	            $options(interval)  \
 	            $options(startTime)  \
 	            $options(precision)  \
-	            $options(indices)  \
+	            $options(tagExpr)  \
             ]
         }
         
+        phase {
+	        return [nettcl2d::tracer create phase \
+	            $options(fileName)  \
+	            $options(interval)  \
+	            $options(startTime)  \
+	            $options(precision)  \
+	            $options(tagExpr)  \
+            ]
+        }
+
+        phase-diff {
+	        return [nettcl2d::tracer create phase-diff \
+	            $options(fileName)  \
+	            $options(interval)  \
+	            $options(startTime)  \
+	            $options(precision)  \
+	            $options(tagExpr1)  \
+	            $options(tagExpr2)  \
+            ]
+        }
+
         default {
             error "Invalid tracer type $type"
         }

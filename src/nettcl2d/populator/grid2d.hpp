@@ -120,7 +120,6 @@ namespace populator {
 								points[row][col],
 								points[row-1][col]));
 						squares.accum(c.square);
-
 						// bottom
 						c.addContactRef(ContactRef(xIndices[row-1][col-1], 1.0, -1.0));
 						// left
@@ -129,6 +128,9 @@ namespace populator {
 						c.addContactRef(ContactRef(xIndex, -1.0, 1.0));
 						// right
 						c.addContactRef(ContactRef(yIndex, 1.0, -1.0));
+
+						c.setProp("x", col - 1);
+						c.setProp("y", row - 1);
 
 						if (col == 1) {
 							c.addTag("left");
