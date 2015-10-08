@@ -26,7 +26,7 @@ namespace tracer {
 		}
 
 		virtual void writeHeader(std::ostream& s) {
-			s << "# time\t<voltage>\n";
+			s << "# time\t<flux>\n";
 		}
 
 	public:

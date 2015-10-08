@@ -184,3 +184,20 @@ proc nettcl2d::foreachContact { varName network tagExpr expression } {
 	}
 }
 
+# Assigns pseudo-random numeric value to a given property of contacts
+# Values are uniformly distributed in range [mean - scattering/2, mean + scattering/2)
+# Arguments
+#   network - network to affect
+#   propName - name of contact's property to set, e.g. v
+#   tagExpr - contact search expression
+#   mean - mean value
+#   scattering - value scattering 
+#   seed - optional seed value forrandom number generator
+proc nettcl2d::setRandomContactProp { network propName tagExpr mean scattering { seed 12345 } } {
+	set rng [nettcl2d::rng create uniform $mean $scattering]
+	nettcl2d::rng seed $rng [expr { int($seed) }]
+	nettcl2d::foreachContact c $network $tagExpr {
+		nettcl2d::contact set $c $propName [nettcl2d::rng next $rng]
+	}
+}
+
