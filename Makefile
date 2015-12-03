@@ -3,7 +3,6 @@ INCLUDE_DIR = -I/usr/include/tcl8.5 -I../phlib/src
 LIB_DIR = -L../phlib/dist
 
 # compiler settings
-CC = g++
 CFLAGS += -static -O3 -Wall $(INCLUDE_DIR) $(LIB_DIR)
 
 NETTCL2D_SRC_DIR = src/nettcl2d
