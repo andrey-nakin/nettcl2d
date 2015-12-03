@@ -13,5 +13,5 @@ NETTCL2D_EXECUTABLE = nettcl2d
 all:	$(NETTCL2D_EXECUTABLE)
 
 $(NETTCL2D_EXECUTABLE):	$(NETTCL2D_SRCS)
-	$(CC) $(CFLAGS) $(NETTCL2D_SRCS) -pthread -lpthread -ltcl8.5 -ldl -lblas -lgsl -lphlib -o $(NETTCL2D_EXECUTABLE)
+	$(CC) $(CFLAGS) $(NETTCL2D_SRCS) -pthread -lpthread -ltcl8.5 -ldl -lgslcblas -lgsl -lphlib -o $(NETTCL2D_EXECUTABLE)
 
