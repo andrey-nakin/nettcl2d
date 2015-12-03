@@ -5,7 +5,7 @@ PTHREAD = -pthread -lpthread
 
 # compiler settings
 CC=g++
-CFLAGS += -static -O3 -Wall $(INCLUDE_DIR) $(LIB_DIR)
+CFLAGS += -static -O3 -Wall $(INCLUDE_DIR) $(LIB_DIR) -Wl,--unresolved-symbols=ignore-all
 
 NETTCL2D_SRC_DIR = src/nettcl2d
 NETTCL2D_SRCS = $(addprefix $(NETTCL2D_SRC_DIR)/, main.cpp calc/tagable.cpp)
