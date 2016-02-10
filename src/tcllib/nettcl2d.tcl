@@ -176,12 +176,29 @@ proc nettcl2d::makeTracer { args } {
     }
 }
 
-# Creates and returns tracer instance
 proc nettcl2d::foreachContact { varName network tagExpr expression } {
 	upvar $varName var
 	foreach var [nettcl2d::network get $network contacts $tagExpr] {
 		uplevel $expression
 	}
+}
+
+proc nettcl2d::foreachCircuit { varName network tagExpr expression } {
+	upvar $varName var
+	foreach var [nettcl2d::network get $network circuits $tagExpr] {
+		uplevel $expression
+	}
+}
+
+proc nettcl2d::single-circuit { network tagExpr } {
+    set cs [nettcl2d::network get $network circuits $tagExpr]
+    if { [llength $cs] == 0 } {
+        error "No circuits with tag expression {$tagExpr}"
+    }
+    if { [llength $cs] > 1 } {
+        error "More than one circuit with tag expression {$tagExpr}"
+    }
+    return [lindex $cs 0]
 }
 
 # Assigns pseudo-random numeric value to a given property of contacts
@@ -201,3 +218,22 @@ proc nettcl2d::setRandomContactProp { network propName tagExpr mean scattering {
 	}
 }
 
+# Calculates summary flux in network
+# Arguments
+#   network - network
+#   tagExpr - optional tag expression to query circuits
+# Return
+#   summary flux or "" of none circuits match tag expression
+proc nettcl2d::summaryFlux { network { tagExpr "" } } {
+    set sum ""
+    
+    foreachCircuit c $network $tagExpr {
+        set flux [nettcl2d::circuit get $c flux]
+        if { $sum == "" } {
+            set sum 0.0
+        }
+        set sum [expr { $sum + $flux }]
+    }
+
+    return $sum
+}

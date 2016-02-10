@@ -87,6 +87,8 @@ namespace proc {
 
 			if ("square" == param) {
 				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(circuit().square));
+			} else if ("flux" == param) {
+				Tcl_SetObjResult(interp, Tcl_NewDoubleObj(network->flux(index)));
 			} else if ("tags" == param) {
 				Tcl_SetObjResult(interp, getTagsObj(interp));
 			} else {
