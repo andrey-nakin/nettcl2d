@@ -7,6 +7,7 @@
 
 package provide nettcl2d 1.0.0
 
+package require Tcl 8.5
 package require math::statistics 0.5
 package require cmdline
 
@@ -190,13 +191,21 @@ proc nettcl2d::foreachCircuit { varName network tagExpr expression } {
 	}
 }
 
-proc nettcl2d::single-circuit { network tagExpr } {
+proc nettcl2d::single-circuit { network tagExpr { raiseError 1 } } {
     set cs [nettcl2d::network get $network circuits $tagExpr]
     if { [llength $cs] == 0 } {
-        error "No circuits with tag expression {$tagExpr}"
+        if { $raiseError } {
+            error "No circuits with tag expression {$tagExpr}"
+        } else {
+            return ""
+        }
     }
     if { [llength $cs] > 1 } {
-        error "More than one circuit with tag expression {$tagExpr}"
+        if { $raiseError } {
+            error "More than one circuit with tag expression {$tagExpr}"
+        } else {
+            return ""
+        }
     }
     return [lindex $cs 0]
 }
@@ -236,4 +245,103 @@ proc nettcl2d::summaryFlux { network { tagExpr "" } } {
     }
 
     return $sum
+}
+
+# Calculates rectangular circuit dimensions
+# Arguments
+#   network - network
+# Return
+#  list of following values:
+#    minX maxX minY maxY
+proc nettcl2d::circuit-xy-dimensions { network } {
+
+    proc get-min { accum value } {
+        if { $value != "" } {
+            if { $accum == "" || $accum > $value } {
+                set accum $value
+            }
+        }
+        return $accum
+    }
+
+    proc get-max { accum value } {
+        if { $value != "" } {
+            if { $accum == "" || $accum < $value } {
+                set accum $value
+            }
+        }
+        return $accum
+    }
+
+    set minX ""
+    set maxX ""
+    set minY ""
+    set maxY ""
+
+    foreachCircuit circuit $network {} {
+        set x [nettcl2d::circuit get-prop $circuit x]
+        set minX [get-min $minX $x]
+        set maxX [get-max $maxX $x]
+
+        set y [nettcl2d::circuit get-prop $circuit y]
+        set minY [get-min $minY $y]
+        set maxY [get-max $maxY $y]
+    }
+
+    return [list $minX $maxX $minY $maxY]
+}
+
+# Writes circuit fluxes to file
+# Arguments
+#   network - network
+#   fileName - file name
+#   fileformat - file format. POssible values:
+#     - map (default) - gnuplot's splot compatible
+#     - slices - gnuplot's sliced splot compatible
+proc nettcl2d::write-xy-fluxes { network fileName { fileFormat map } } {
+
+    # validate format
+    if { $fileFormat != "slices" } {
+        set fileFormat map
+    }
+
+    # determine dimensions
+    lassign [circuit-xy-dimensions $network] minx maxx miny maxy
+
+    set f [open $fileName w]
+    puts $f "# X\tY\tFlux"
+
+    for { set y $miny } { $y <= $maxy } { incr y } {
+
+        for { set x $minx } { $x <= $maxx } { incr x } {
+            set circuit [nettcl2d::single-circuit $network "x=$x & y=$y" 0]
+            if { ![nettcl2d::circuit exists $circuit] } {
+                set flux 0.0
+            } else {
+                set flux [nettcl2d::circuit get $circuit flux]
+            }
+
+            switch $fileFormat {
+                map {
+                    puts $f "$x\t$y\t$flux"
+                }
+                slices {
+                    puts $f "$x\t$y\t$flux"
+                    puts $f "$x\t$y\t0.0"
+                    puts $f ""
+                }
+            }
+        }
+
+        switch $fileFormat {
+            map {
+                puts $f ""
+            }
+            slices {
+                puts $f "\n"
+            }
+        }
+    }
+
+    close $f
 }
